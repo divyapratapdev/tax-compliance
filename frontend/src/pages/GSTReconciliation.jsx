@@ -27,6 +27,7 @@ export default function GSTReconciliation() {
   useEffect(() => {
     if (!activeClient) return;
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeClient, month, year]);
 
   const loadData = () => {
