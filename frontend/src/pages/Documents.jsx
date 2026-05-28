@@ -17,6 +17,7 @@ export default function Documents() {
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [drag, setDrag] = useState(false);
   const [uploadClient, setUploadClient] = useState("");
   const [docType, setDocType] = useState("bank_statement");
   const fileRef = useRef(null);
