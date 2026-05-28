@@ -30,7 +30,7 @@ export default function TDSAlerts() {
       setVendors(v.vendors || []);
       setLoading(false);
     }).catch(() => { toast.error("Failed to load TDS data"); setLoading(false); });
-  }, [selected, fy]);
+  }, [activeClient, fy]);
 
   if (loading || !summary) return (
     <div className="animate-fade-in space-y-6" data-testid="tds-loading">
