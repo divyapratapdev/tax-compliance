@@ -75,7 +75,7 @@ async def import_purchase_register(
         })
         
     if errors:
-        return {"status": "error", "errors": errors}
+        raise HTTPException(status_code=400, detail={"status": "error", "errors": errors[:20]})
         
     if entries:
         # Clear existing for this period/client
@@ -154,7 +154,7 @@ async def import_gstr2b(
         })
         
     if errors:
-        return {"status": "error", "errors": errors}
+        raise HTTPException(status_code=400, detail={"status": "error", "errors": errors[:20]})
         
     if entries:
         await db.gstr2b_data.delete_many({
@@ -212,7 +212,7 @@ async def import_bank_statement(
         })
         
     if errors:
-        return {"status": "error", "errors": errors}
+        raise HTTPException(status_code=400, detail={"status": "error", "errors": errors[:20]}) # Limit to top 20 errors to avoid massive payloads
         
     if entries:
         await db.vendor_payments.insert_many(entries)

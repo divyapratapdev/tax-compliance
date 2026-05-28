@@ -51,7 +51,12 @@ export default function TDSAlerts() {
       toast.success("Bank Statement imported successfully!", { id: toastId });
       loadData();
     } catch (err) {
-      toast.error("Failed to import Bank Statement", { id: toastId });
+      const details = err.response?.data?.detail;
+      if (details?.errors && details.errors.length > 0) {
+        toast.error(`Import failed: ${details.errors[0]}`, { id: toastId });
+      } else {
+        toast.error(err.response?.data?.detail || "Failed to import Bank Statement", { id: toastId });
+      }
     }
   };
 

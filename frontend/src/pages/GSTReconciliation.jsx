@@ -34,7 +34,7 @@ export default function GSTReconciliation() {
     setLoading(true);
     Promise.all([
       getGSTSummary(activeClient, month, year),
-      listMismatches({ client_id: activeClient, is_resolved: false }),
+      listMismatches({ client_id: activeClient, month, year, is_resolved: false }),
     ]).then(([s, m]) => {
       setSummary(s);
       setMismatches(m.mismatches || []);
@@ -54,7 +54,12 @@ export default function GSTReconciliation() {
       toast.success("Purchase Register imported successfully!", { id: toastId });
       loadData();
     } catch (err) {
-      toast.error("Failed to import Purchase Register", { id: toastId });
+      const details = err.response?.data?.detail;
+      if (details?.errors && details.errors.length > 0) {
+        toast.error(`Import failed: ${details.errors[0]}`, { id: toastId });
+      } else {
+        toast.error(err.response?.data?.detail || "Failed to import Purchase Register", { id: toastId });
+      }
     }
   };
 
@@ -67,7 +72,12 @@ export default function GSTReconciliation() {
       toast.success("GSTR-2B imported successfully!", { id: toastId });
       loadData();
     } catch (err) {
-      toast.error("Failed to import GSTR-2B", { id: toastId });
+      const details = err.response?.data?.detail;
+      if (details?.errors && details.errors.length > 0) {
+        toast.error(`Import failed: ${details.errors[0]}`, { id: toastId });
+      } else {
+        toast.error(err.response?.data?.detail || "Failed to import GSTR-2B", { id: toastId });
+      }
     }
   };
 

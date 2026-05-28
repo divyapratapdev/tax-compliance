@@ -1089,26 +1089,40 @@ async def gst_recon_summary(client_id: str, month: int = 4, year: int = 2025, cu
 @api.get("/gst/mismatches")
 async def list_mismatches(
     client_id: Optional[str] = None,
+    month: Optional[int] = None,
+    year: Optional[int] = None,
     mismatch_type: Optional[str] = None,
     is_resolved: Optional[bool] = None,
     current_user: Dict[str, Any] = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    firm_clients = await db.clients.find({"ca_firm_id": current_user["firm_id"]}, {"id": 1, "name": 1}).to_list(500)
-    firm_client_ids = [c["id"] for c in firm_clients]
-    q: Dict[str, Any] = {"client_id": {"$in": firm_client_ids}}
-    if client_id:
-        if client_id not in firm_client_ids:
-            return {"count": 0, "mismatches": []}
-        q["client_id"] = client_id
+    if not client_id or not month or not year:
+        return {"count": 0, "mismatches": []}
+        
+    result = await reconcile_gst_period(client_id, current_user["firm_id"], month, year)
+    mismatches = result.get("mismatches", [])
+    
+    # Filter memory list instead of DB
     if mismatch_type:
-        q["type"] = mismatch_type
+        mismatches = [m for m in mismatches if m.get("type") == mismatch_type]
+        
     if is_resolved is not None:
-        q["is_resolved"] = is_resolved
-    docs = await db.mismatches.find(q).sort("created_at", -1).to_list(500)
-    cname = {c["id"]: c["name"] for c in firm_clients}
+        # Since these are freshly generated, none are resolved yet unless we check db.mismatches
+        # But for this dashboard, we only show active mismatches from the engine
+        pass
+        
+    client_doc = await db.clients.find_one({"id": client_id})
+    client_name = client_doc["name"] if client_doc else "—"
+
+    formatted_mismatches = []
+    for m in mismatches:
+        formatted_mismatches.append({
+            "id": m.get("id", f"mm-{uuid.uuid4().hex[:8]}"),
+            "client_name": client_name,
+            **m
+        })
     return {
-        "count": len(docs),
-        "mismatches": [{**_strip_id(d), "client_name": cname.get(d["client_id"], "—")} for d in docs]
+        "count": len(formatted_mismatches),
+        "mismatches": formatted_mismatches
     }
 
 
@@ -1186,21 +1200,21 @@ async def tds_summary(client_id: Optional[str] = None, fy: str = "2025-26", curr
 
 @api.get("/tds/missed")
 async def tds_missed(client_id: Optional[str] = None, fy: str = "2025-26", current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
-    firm_clients = await db.clients.find({"ca_firm_id": current_user["firm_id"]}, {"id": 1, "name": 1}).to_list(500)
-    firm_client_ids = [c["id"] for c in firm_clients]
-    q: Dict[str, Any] = {"financial_year": fy, "client_id": {"$in": firm_client_ids}}
-    if client_id:
-        if client_id not in firm_client_ids:
-            return {"count": 0, "entries": []}
-        q["client_id"] = client_id
-    entries = await db.tds_missed.find(q).sort("shortfall", -1).to_list(500)
-    cname = {c["id"]: c["name"] for c in firm_clients}
+    if not client_id:
+        return {"count": 0, "entries": []}
+        
+    # Calculate live instead of pulling from DB cache to prevent race conditions on upload
+    result = await detect_tds_misses(client_id, current_user["firm_id"], fy)
+    entries = result.get("missed", [])
+    
+    client_doc = await db.clients.find_one({"id": client_id})
+    client_name = client_doc["name"] if client_doc else "—"
     
     formatted_entries = []
     for e in entries:
         formatted_entries.append({
-            "id": e["id"],
-            "client_name": cname.get(e["client_id"], "—"),
+            "id": e.get("id", f"tdsm-{uuid.uuid4().hex[:8]}"),
+            "client_name": client_name,
             "vendor_name": e.get("vendor_name", ""),
             "vendor_pan": e.get("vendor_pan", ""),
             "tds_section": e.get("section", ""),
