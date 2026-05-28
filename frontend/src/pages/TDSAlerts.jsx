@@ -175,6 +175,7 @@ export default function TDSAlerts() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 
@@ -186,8 +187,9 @@ export default function TDSAlerts() {
         {vendors.length === 0 ? (
           <EmptyState title="No vendor data" />
         ) : (
-          <table className="tp-table">
-            <thead>
+          <div className="overflow-x-auto">
+            <table className="tp-table">
+              <thead>
               <tr>
                 <th>Vendor</th>
                 <th>Section</th>
@@ -219,6 +221,7 @@ export default function TDSAlerts() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>
