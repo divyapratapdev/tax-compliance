@@ -133,8 +133,13 @@ class TDSService:
             generator = Form26QGenerator(tan, pan, deductor_name)
             xml_content = generator.generate_26q(entry_dicts, financial_year, quarter)
 
+            import os
+            safe_client_id = os.path.basename(str(client_id))
+            safe_fy = os.path.basename(str(financial_year))
+            safe_quarter = os.path.basename(str(quarter))
+            
             # Save to file
-            file_name = f"26Q_{client_id}_{financial_year}_{quarter}.xml"
+            file_name = f"26Q_{safe_client_id}_{safe_fy}_{safe_quarter}.xml"
             file_path = f"./uploads/{file_name}"
             generator.save_to_file(xml_content, file_path)
 

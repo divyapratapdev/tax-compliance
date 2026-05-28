@@ -22,6 +22,12 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
+
+    const handleLogout = () => {
+      setUser(null);
+    };
+    window.addEventListener("auth:logout", handleLogout);
+    return () => window.removeEventListener("auth:logout", handleLogout);
   }, []);
 
   const login = async (credentials) => {

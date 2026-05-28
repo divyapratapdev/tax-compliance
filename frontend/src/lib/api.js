@@ -23,6 +23,7 @@ http.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem("taxpilot_token");
+      window.dispatchEvent(new Event("auth:logout"));
     }
     return Promise.reject(error);
   }

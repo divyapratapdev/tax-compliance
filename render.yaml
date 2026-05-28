@@ -6,6 +6,6 @@ services:
     dockerContext: ./backend
     envVars:
       - key: PORT
-        value: 8000
+        value: "8000"
       - key: MONGO_URL
-        placeholder: "Insert your MongoDB connection string (e.g., mongodb+srv://...)"
+        sync: false

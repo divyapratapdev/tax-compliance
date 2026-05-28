@@ -332,10 +332,19 @@ class GSTReconciliationEngine:
         if not date1 or not date2:
             return True  # If either date is missing, don't reject match
 
+        import dateutil.parser
+        
         if isinstance(date1, str):
-            date1 = datetime.strptime(date1, "%Y-%m-%d") if date1 else None
+            try:
+                date1 = dateutil.parser.parse(date1) if date1 else None
+            except ValueError:
+                date1 = None
+                
         if isinstance(date2, str):
-            date2 = datetime.strptime(date2, "%Y-%m-%d") if date2 else None
+            try:
+                date2 = dateutil.parser.parse(date2) if date2 else None
+            except ValueError:
+                date2 = None
 
         if not date1 or not date2:
             return True

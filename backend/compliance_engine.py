@@ -1,6 +1,7 @@
 import os
+import uuid
 from typing import List, Dict, Any
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 import motor.motor_asyncio
 import calendar
 
@@ -156,16 +157,22 @@ async def build_client_calendar(client_id: str, firm_id: str) -> List[Dict[str, 
         if existing:
             item["status"] = existing["status"]
             item["id"] = existing["id"]
+            item["due_date"] = item["due_date"].isoformat()
         else:
             days_until = (item["due_date"] - today).days
             if days_until < 0:
-                item["status"] = "overdue"
-            elif days_until <= 7:
-                item["status"] = "due_soon"
+                item["status"] = "missed"
             else:
-                item["status"] = "upcoming"
-            item["id"] = None
+                item["status"] = "pending"
+                
+            item["id"] = str(uuid.uuid4())
+            item["client_id"] = client_id
+            item["due_date"] = item["due_date"].isoformat()
+            item["filed_at"] = None
+            item["reminder_7day_sent"] = days_until <= 7 and days_until >= 0
+            item["reminder_1day_sent"] = days_until <= 1 and days_until >= 0
+            item["created_at"] = datetime.now(timezone.utc).isoformat()
             
-        item["due_date"] = item["due_date"].isoformat()
-        
+            await db.compliance_items.insert_one(item.copy())
+            
     return items

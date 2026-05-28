@@ -145,7 +145,9 @@ class TransactionCategorizer:
     def _save_model(self):
         """Save trained model to disk"""
         os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
-        joblib.dump(self.pipeline, self.model_path)
+        temp_path = f"{self.model_path}.tmp.{os.getpid()}"
+        joblib.dump(self.pipeline, temp_path)
+        os.replace(temp_path, self.model_path)
         logger.info(f"Saved categorization model to {self.model_path}")
 
     def _preprocess_text(self, narration: str) -> str:

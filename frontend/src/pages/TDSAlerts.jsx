@@ -57,6 +57,8 @@ export default function TDSAlerts() {
       } else {
         toast.error(err.response?.data?.detail || "Failed to import Bank Statement", { id: toastId });
       }
+    } finally {
+      e.target.value = "";
     }
   };
 

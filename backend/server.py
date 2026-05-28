@@ -782,6 +782,8 @@ async def _enrich_client(c: Dict[str, Any]) -> Dict[str, Any]:
 async def list_clients(
     search: Optional[str] = None,
     health: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 50,
     current_user: Dict[str, Any] = Depends(get_current_user),
 ) -> Dict[str, Any]:
     q: Dict[str, Any] = {"ca_firm_id": current_user["firm_id"]}
@@ -792,11 +794,63 @@ async def list_clients(
             {"gstin": {"$regex": safe_search, "$options": "i"}},
             {"pan": {"$regex": safe_search, "$options": "i"}},
         ]
-    docs = await db.clients.find(q).to_list(500)
-    enriched = [await _enrich_client(c) for c in docs]
+    docs = await db.clients.find(q).to_list(10000)
+    
+    client_ids = [c["id"] for c in docs]
+    
+    mismatches = await db.mismatches.aggregate([
+        {"$match": {"client_id": {"$in": client_ids}, "is_resolved": False}},
+        {"$group": {"_id": "$client_id", "count": {"$sum": 1}}}
+    ]).to_list(None)
+    mismatch_map = {m["_id"]: m["count"] for m in mismatches}
+
+    missed_tds_agg = await db.tds_entries.aggregate([
+        {"$match": {"client_id": {"$in": client_ids}, "missed_deduction": True}},
+        {"$group": {"_id": "$client_id", "total": {"$sum": "$tds_amount"}, "penalty": {"$sum": "$penalty_estimate"}}}
+    ]).to_list(None)
+    missed_tds_map = {m["_id"]: m for m in missed_tds_agg}
+
+    compliance_agg = await db.compliance_items.aggregate([
+        {"$match": {"client_id": {"$in": client_ids}, "status": {"$in": ["pending", "missed"]}}},
+        {"$group": {"_id": {"client_id": "$client_id", "status": "$status"}, "count": {"$sum": 1}}}
+    ]).to_list(None)
+    
+    upcoming_map = {}
+    overdue_map = {}
+    for c in compliance_agg:
+        cid = c["_id"]["client_id"]
+        if c["_id"]["status"] == "pending":
+            upcoming_map[cid] = c["count"]
+        else:
+            overdue_map[cid] = c["count"]
+
+    enriched = []
+    for c in docs:
+        cid = c["id"]
+        open_mismatches = mismatch_map.get(cid, 0)
+        tds_data = missed_tds_map.get(cid, {"total": 0.0, "penalty": 0.0})
+        upcoming = upcoming_map.get(cid, 0)
+        overdue = overdue_map.get(cid, 0)
+        
+        health_status = _client_health(open_mismatches, tds_data["total"], overdue)
+        
+        enriched.append({
+            **_strip_id(c),
+            "health": health_status,
+            "open_mismatches": open_mismatches,
+            "missed_tds": tds_data["total"],
+            "missed_penalty": tds_data["penalty"],
+            "upcoming_compliance": upcoming,
+            "overdue_compliance": overdue,
+        })
+
     if health:
         enriched = [c for c in enriched if c["health"] == health]
-    return {"count": len(enriched), "clients": enriched}
+
+    total_count = len(enriched)
+    enriched_paginated = enriched[skip : skip + limit]
+
+    return {"count": total_count, "clients": enriched_paginated}
 
 
 @api.get("/clients/{client_id}")
@@ -964,9 +1018,11 @@ async def dashboard_summary(current_user: Dict[str, Any] = Depends(get_current_u
 async def list_documents(
     client_id: Optional[str] = None, 
     status: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 50,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ) -> Dict[str, Any]:
-    firm_clients = await db.clients.find({"ca_firm_id": current_user["firm_id"]}, {"id": 1, "name": 1}).to_list(500)
+    firm_clients = await db.clients.find({"ca_firm_id": current_user["firm_id"]}, {"id": 1, "name": 1}).to_list(10000)
     firm_client_ids = [c["id"] for c in firm_clients]
     q: Dict[str, Any] = {"client_id": {"$in": firm_client_ids}}
     if client_id:
@@ -975,10 +1031,12 @@ async def list_documents(
         q["client_id"] = client_id
     if status:
         q["ocr_status"] = status
-    docs = await db.documents.find(q).sort("uploaded_at", -1).to_list(500)
+        
+    total_count = await db.documents.count_documents(q)
+    docs = await db.documents.find(q).sort("uploaded_at", -1).skip(skip).limit(limit).to_list(limit)
     cname = {c["id"]: c["name"] for c in firm_clients}
     return {
-        "count": len(docs),
+        "count": total_count,
         "documents": [{**_strip_id(d), "client_name": cname.get(d["client_id"], "—")} for d in docs]
     }
 
@@ -1098,27 +1156,24 @@ async def list_mismatches(
     if not client_id or not month or not year:
         return {"count": 0, "mismatches": []}
         
-    result = await reconcile_gst_period(client_id, current_user["firm_id"], month, year)
-    mismatches = result.get("mismatches", [])
-    
-    # Filter memory list instead of DB
-    if mismatch_type:
-        mismatches = [m for m in mismatches if m.get("type") == mismatch_type]
-        
-    if is_resolved is not None:
-        # Since these are freshly generated, none are resolved yet unless we check db.mismatches
-        # But for this dashboard, we only show active mismatches from the engine
-        pass
-        
-    client_doc = await db.clients.find_one({"id": client_id})
-    client_name = client_doc["name"] if client_doc else "—"
+    c = await db.clients.find_one({"id": client_id, "ca_firm_id": current_user["firm_id"]})
+    if not c:
+        raise HTTPException(404, "Client not found or access denied")
 
+    q = {"client_id": client_id, "period_month": month, "period_year": year}
+    if mismatch_type:
+        q["type"] = mismatch_type
+    if is_resolved is not None:
+        q["is_resolved"] = is_resolved
+        
+    mismatches = await db.mismatches.find(q).to_list(500)
+    
     formatted_mismatches = []
     for m in mismatches:
         formatted_mismatches.append({
-            "id": m.get("id", f"mm-{uuid.uuid4().hex[:8]}"),
-            "client_name": client_name,
-            **m
+            "id": m.get("id"),
+            "client_name": c["name"],
+            **_strip_id(m)
         })
     return {
         "count": len(formatted_mismatches),
@@ -1347,10 +1402,11 @@ async def trigger_daily_checks():
 
 app.include_router(api)
 
+cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    allow_origins=cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

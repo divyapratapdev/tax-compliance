@@ -24,6 +24,7 @@ const clientSchema = z.object({
 export default function Clients() {
   const { refresh: refreshGlobalClients } = useClients();
   const [clients, setClients] = useState([]);
+  const [totalClients, setTotalClients] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [healthFilter, setHealthFilter] = useState("");
@@ -50,19 +51,23 @@ export default function Clients() {
 
   const fetchClients = () => {
     setLoading(true);
-    listClients({ search, health: healthFilter || undefined })
+    listClients({ search, health: healthFilter || undefined, skip: (currentPage - 1) * itemsPerPage, limit: itemsPerPage })
       .then((d) => {
         setClients(d.clients || []);
+        setTotalClients(d.total || d.total_count || d.clients?.length || 0);
         setLoading(false);
-        setCurrentPage(1); // Reset to page 1 on new search/filter
       })
       .catch(() => setLoading(false));
   };
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, healthFilter]);
+
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     fetchClients();
-  }, [search, healthFilter]);
+  }, [search, healthFilter, currentPage]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
   const summary = useMemo(
@@ -74,8 +79,7 @@ export default function Clients() {
     [clients]
   );
 
-  const totalPages = Math.ceil(clients.length / itemsPerPage);
-  const paginatedClients = clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(totalClients / itemsPerPage));
 
   const handleOpenModal = (client = null) => {
     if (client) {
@@ -215,7 +219,7 @@ export default function Clients() {
               </tr>
             </thead>
             <tbody>
-              {paginatedClients.map((c) => (
+              {clients.map((c) => (
                 <tr key={c.id}>
                   <td>
                     <div className="font-semibold text-slate-900">{c.name}</div>
@@ -267,7 +271,7 @@ export default function Clients() {
       {!loading && totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-slate-500">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, clients.length)} of {clients.length} clients
+            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalClients)} of {totalClients} clients
           </div>
           <div className="flex items-center gap-1">
             <button

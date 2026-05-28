@@ -15,6 +15,7 @@ const STATUS_ICON = { completed: CheckCircle2, processing: Loader2, failed: XCir
 export default function Documents() {
   const { clients, selected } = useClients();
   const [docs, setDocs] = useState([]);
+  const [totalDocs, setTotalDocs] = useState(0);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [drag, setDrag] = useState(false);
@@ -28,12 +29,20 @@ export default function Documents() {
 
   const load = useCallback(() => {
     setLoading(true);
-    const params = selected !== "all" ? { client_id: selected } : {};
+    const params = {
+      skip: (currentPage - 1) * itemsPerPage,
+      limit: itemsPerPage,
+      ...(selected !== "all" ? { client_id: selected } : {})
+    };
     listDocuments(params).then((d) => { 
-      setDocs(d.documents || []); 
+      setDocs(d.documents || []);
+      setTotalDocs(d.total || d.total_count || d.documents?.length || 0);
       setLoading(false); 
-      setCurrentPage(1);
     }).catch(() => setLoading(false));
+  }, [selected, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
   }, [selected]);
 
   useEffect(() => { load(); }, [load]);
@@ -76,8 +85,7 @@ export default function Documents() {
     handleFiles(e.dataTransfer.files);
   };
 
-  const totalPages = Math.ceil(docs.length / itemsPerPage);
-  const paginatedDocs = docs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(totalDocs / itemsPerPage));
 
   return (
     <div data-testid="documents-page" className="animate-fade-in">
@@ -190,7 +198,7 @@ export default function Documents() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedDocs.map((d) => {
+                {docs.map((d) => {
                   const Icon = STATUS_ICON[d.ocr_status] || FileText;
                   return (
                     <tr key={d.id} data-testid={`doc-row-${d.id}`}>
@@ -224,7 +232,7 @@ export default function Documents() {
         {!loading && totalPages > 1 && (
           <div className="xl:col-span-8 xl:col-start-5 flex items-center justify-between">
             <div className="text-sm text-slate-500">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, docs.length)} of {docs.length} documents
+              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalDocs)} of {totalDocs} documents
             </div>
             <div className="flex items-center gap-1">
               <button

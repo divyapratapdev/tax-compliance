@@ -189,12 +189,25 @@ class ComplianceEngine:
                 penalty_description="₹100/day additional fee after due date",
             ))
 
-        # Persist: delete old items, insert new ones
-        db.query(ComplianceItem).filter(ComplianceItem.client_id == client_id).delete()
-        db.add_all(items)
-        db.commit()
-        logger.info("Generated %d compliance items for client %d", len(items), client_id)
-        return items
+        # Persist: upsert/skip instead of delete
+        existing_items = db.query(ComplianceItem).filter(ComplianceItem.client_id == client_id).all()
+        existing_keys = {
+            (item.type, item.due_date, item.period_month, item.period_year, item.quarter)
+            for item in existing_items
+        }
+
+        new_items = []
+        for item in items:
+            key = (item.type, item.due_date, item.period_month, item.period_year, item.quarter)
+            if key not in existing_keys:
+                new_items.append(item)
+
+        if new_items:
+            db.add_all(new_items)
+            db.commit()
+            
+        logger.info("Generated %d compliance items for client %d", len(new_items), client_id)
+        return existing_items + new_items
 
     # -----------------------------------------------------------------------
     # Alert logic (called by APScheduler daily)

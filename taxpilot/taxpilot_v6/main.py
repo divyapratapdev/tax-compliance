@@ -294,6 +294,7 @@ def process_bank_statement(doc_id, storage_path, file_ext, client_id, bank_accou
         logger.info(f"Processed {stored_count} transactions from bank statement {doc_id}")
 
     except Exception as e:
+        db.rollback()
         logger.error(f"Failed to process bank statement {doc_id}: {str(e)}")
         doc = db.query(models.Document).filter(models.Document.id == doc_id).first()
         if doc:
@@ -343,6 +344,7 @@ def process_invoice(doc_id, storage_path, file_ext, client_id):
         logger.info(f"Processed invoice {doc_id}: {invoice_data.get('vendor_name', 'Unknown')}")
 
     except Exception as e:
+        db.rollback()
         logger.error(f"Failed to process invoice {doc_id}: {str(e)}")
         doc = db.query(models.Document).filter(models.Document.id == doc_id).first()
         if doc:
@@ -627,6 +629,7 @@ def run_reconciliation_background(run_id: str, client_id: int, period_month: int
         result = gst_service.run_reconciliation(client_id, period_month, period_year)
         logger.info(f"Reconciliation completed: {result}")
     except Exception as e:
+        db.rollback()
         logger.error(f"Reconciliation failed: {str(e)}")
         # Update run status to failed
         run = db.query(ReconciliationRun).filter(ReconciliationRun.id == run_id).first()

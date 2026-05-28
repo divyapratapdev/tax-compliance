@@ -1,4 +1,5 @@
 import os
+import math
 from typing import List, Dict, Any
 import motor.motor_asyncio
 from datetime import datetime
@@ -84,8 +85,13 @@ async def detect_tds_misses(client_id: str, firm_id: str, fy: str) -> Dict[str, 
         agg_breach = cumulative > rule["threshold"]
         
         if single_breach or agg_breach:
-            # Should have deducted TDS on THIS payment
+            # Should have deducted TDS
             expected_tds = amount * rule["rate"]
+            
+            if agg_breach and cumulative - amount <= rule["threshold"]:
+                # Just crossed the threshold!
+                # We need to deduct TDS on the ENTIRE cumulative amount, not just the current payment
+                expected_tds = cumulative * rule["rate"]
             
             # Special case for 194Q: TDS only on excess
             if rule["section"] == "194Q":
@@ -99,8 +105,11 @@ async def detect_tds_misses(client_id: str, firm_id: str, fy: str) -> Dict[str, 
                 shortfall = expected_tds - actual_tds
                 total_short_deducted += shortfall
                 
-                # Calculate interest (1% per month from payment date)
-                months_delayed = max(1, (datetime.now() - date).days // 30)
+                # Calculate interest (1% per month or part thereof from payment date)
+                days_delayed = (datetime.now() - date).days
+                months_delayed = math.ceil(days_delayed / 30) if days_delayed > 0 else 0
+                if months_delayed == 0 and shortfall > 0:
+                    months_delayed = 1
                 interest = shortfall * 0.01 * months_delayed
                 
                 missed_deductions.append({

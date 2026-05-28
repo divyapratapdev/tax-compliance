@@ -26,9 +26,13 @@ async def send_email(to_email: str, subject: str, html_content: str):
     msg.add_alternative(html_content, subtype='html')
 
     try:
-        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
-            server.login(SMTP_USER, SMTP_PASS)
-            server.send_message(msg)
+        import asyncio
+        loop = asyncio.get_event_loop()
+        def _send():
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
+                server.login(SMTP_USER, SMTP_PASS)
+                server.send_message(msg)
+        await loop.run_in_executor(None, _send)
     except Exception as e:
         print(f"Failed to send email: {e}")
 

@@ -15,10 +15,15 @@ async def process_document_background(db, doc_id: str, file_path: str, doc_type:
     try:
         # Check if it's a PDF
         if file_path.lower().endswith(".pdf"):
-            pdf_doc = fitz.open(file_path)
-            for page in pdf_doc:
-                extracted_text += page.get_text()
-            pdf_doc.close()
+            loop = asyncio.get_event_loop()
+            def extract():
+                t = ""
+                doc = fitz.open(file_path)
+                for page in doc:
+                    t += page.get_text()
+                doc.close()
+                return t
+            extracted_text = await loop.run_in_executor(None, extract)
         else:
             extracted_text = "Simulated extraction for non-PDF file."
             

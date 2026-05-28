@@ -60,6 +60,8 @@ export default function GSTReconciliation() {
       } else {
         toast.error(err.response?.data?.detail || "Failed to import Purchase Register", { id: toastId });
       }
+    } finally {
+      e.target.value = "";
     }
   };
 
@@ -78,6 +80,8 @@ export default function GSTReconciliation() {
       } else {
         toast.error(err.response?.data?.detail || "Failed to import GSTR-2B", { id: toastId });
       }
+    } finally {
+      e.target.value = "";
     }
   };
 

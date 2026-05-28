@@ -81,6 +81,7 @@ async def import_purchase_register(
         # Clear existing for this period/client
         await db.purchase_register.delete_many({
             "client_id": client_id,
+            "ca_firm_id": current_user["firm_id"],
             "period_month": period_month,
             "period_year": period_year
         })
@@ -159,6 +160,7 @@ async def import_gstr2b(
     if entries:
         await db.gstr2b_data.delete_many({
             "client_id": client_id,
+            "ca_firm_id": current_user["firm_id"],
             "period_month": period_month,
             "period_year": period_year
         })

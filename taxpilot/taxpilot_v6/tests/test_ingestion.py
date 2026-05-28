@@ -93,16 +93,18 @@ def test_upload_invalid_format(setup_db):
     with open("test.txt", "w") as f:
         f.write("not a bank statement")
 
-    with open("test.txt", "rb") as f:
-        response = client.post(
-            f"/ingest/bank-statement?client_id={setup_db['client_id']}&bank_account_id={setup_db['bank_account_id']}",
-            files={"file": ("test.txt", f, "text/plain")}
-        )
+    try:
+        with open("test.txt", "rb") as f:
+            response = client.post(
+                f"/ingest/bank-statement?client_id={setup_db['client_id']}&bank_account_id={setup_db['bank_account_id']}",
+                files={"file": ("test.txt", f, "text/plain")}
+            )
 
-    assert response.status_code == 400
-    assert "Unsupported format" in response.json()["detail"]
-
-    os.remove("test.txt")
+        assert response.status_code == 400
+        assert "Unsupported format" in response.json()["detail"]
+    finally:
+        if os.path.exists("test.txt"):
+            os.remove("test.txt")
 
 def test_create_csv_bank_statement(setup_db):
     """Test CSV upload and parsing"""
@@ -117,18 +119,20 @@ def test_create_csv_bank_statement(setup_db):
     with open("test_statement.csv", "w") as f:
         f.write(csv_content)
 
-    with open("test_statement.csv", "rb") as f:
-        response = client.post(
-            f"/ingest/bank-statement?client_id={setup_db['client_id']}&bank_account_id={setup_db['bank_account_id']}",
-            files={"file": ("hdfc_statement.csv", f, "text/csv")}
-        )
+    try:
+        with open("test_statement.csv", "rb") as f:
+            response = client.post(
+                f"/ingest/bank-statement?client_id={setup_db['client_id']}&bank_account_id={setup_db['bank_account_id']}",
+                files={"file": ("hdfc_statement.csv", f, "text/csv")}
+            )
 
-    assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "processing"
-    assert data["file_type"] == "bank_statement"
-
-    os.remove("test_statement.csv")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "processing"
+        assert data["file_type"] == "bank_statement"
+    finally:
+        if os.path.exists("test_statement.csv"):
+            os.remove("test_statement.csv")
 
     # Note: Background tasks don't run in TestClient, so we test the endpoint response only
     # In production, the background task would process and store transactions
@@ -173,88 +177,91 @@ def test_end_to_end_categorization(setup_db):
     with open("test_e2e.csv", "w") as f:
         f.write(csv_content)
 
-    with open("test_e2e.csv", "rb") as f:
-        response = client.post(
-            f"/ingest/bank-statement?client_id={setup_db['client_id']}&bank_account_id={setup_db['bank_account_id']}",
-            files={"file": ("hdfc_statement.csv", f, "text/csv")}
+    try:
+        with open("test_e2e.csv", "rb") as f:
+            response = client.post(
+                f"/ingest/bank-statement?client_id={setup_db['client_id']}&bank_account_id={setup_db['bank_account_id']}",
+                files={"file": ("hdfc_statement.csv", f, "text/csv")}
+            )
+
+        assert response.status_code == 200
+        doc_data = response.json()
+        doc_id = doc_data["document_id"]
+
+        # In TestClient, background tasks don't run automatically
+        # We need to trigger them manually or check the DB state
+        # For this test, we'll verify the document was created and check transactions
+
+        db = TestingSessionLocal()
+
+        # Verify document exists
+        doc = db.query(models.Document).filter(models.Document.id == doc_id).first()
+        assert doc is not None
+        assert doc.type == "bank_statement"
+
+        # Note: In real FastAPI with TestClient, background tasks don't execute
+        # So we manually run the processing to test categorization
+        from main import process_bank_statement
+        process_bank_statement(
+            doc_id=doc_id,
+            storage_path=doc.storage_path,
+            file_ext=".csv",
+            client_id=setup_db["client_id"],
+            bank_account_id=setup_db["bank_account_id"]
         )
 
-    assert response.status_code == 200
-    doc_data = response.json()
-    doc_id = doc_data["document_id"]
+        # Verify transactions were created and categorized
+        transactions = db.query(models.Transaction).filter(
+            models.Transaction.document_id == doc_id
+        ).all()
 
-    # In TestClient, background tasks don't run automatically
-    # We need to trigger them manually or check the DB state
-    # For this test, we'll verify the document was created and check transactions
+        assert len(transactions) == 7  # 7 rows in CSV
 
-    db = TestingSessionLocal()
+        # Check categorization results
+        categories = {txn.narration: (txn.category, txn.category_confidence, txn.needs_review) 
+                      for txn in transactions}
 
-    # Verify document exists
-    doc = db.query(models.Document).filter(models.Document.id == doc_id).first()
-    assert doc is not None
-    assert doc.type == "bank_statement"
+        # Salary should be rule-matched with high confidence
+        salary_txn = [t for t in transactions if "SALARY" in t.narration.upper()][0]
+        assert salary_txn.category == "salary"
+        assert salary_txn.category_confidence == 1.0
+        assert salary_txn.needs_review == False
 
-    # Note: In real FastAPI with TestClient, background tasks don't execute
-    # So we manually run the processing to test categorization
-    from main import process_bank_statement
-    process_bank_statement(
-        doc_id=doc_id,
-        storage_path=doc.storage_path,
-        file_ext=".csv",
-        client_id=setup_db["client_id"],
-        bank_account_id=setup_db["bank_account_id"]
-    )
+        # UPI should be categorized
+        upi_txn = [t for t in transactions if "UPI" in t.narration.upper()][0]
+        assert upi_txn.category == "upi_transfer"
+        assert upi_txn.category_confidence > 0.0
 
-    # Verify transactions were created and categorized
-    transactions = db.query(models.Transaction).filter(
-        models.Transaction.document_id == doc_id
-    ).all()
+        # TDS should be rule-matched
+        tds_txn = [t for t in transactions if "TDS" in t.narration.upper()][0]
+        assert tds_txn.category == "tds_payment"
+        assert tds_txn.category_confidence == 1.0
+        assert tds_txn.needs_review == False
 
-    assert len(transactions) == 7  # 7 rows in CSV
+        # GST should be rule-matched
+        gst_txn = [t for t in transactions if "GST" in t.narration.upper()][0]
+        assert gst_txn.category == "gst_payment"
+        assert gst_txn.category_confidence == 1.0
 
-    # Check categorization results
-    categories = {txn.narration: (txn.category, txn.category_confidence, txn.needs_review) 
-                  for txn in transactions}
+        # Interest should be rule-matched
+        interest_txn = [t for t in transactions if "INTEREST" in t.narration.upper()][0]
+        assert interest_txn.category == "interest_income"
+        assert interest_txn.category_confidence == 1.0
 
-    # Salary should be rule-matched with high confidence
-    salary_txn = [t for t in transactions if "SALARY" in t.narration.upper()][0]
-    assert salary_txn.category == "salary"
-    assert salary_txn.category_confidence == 1.0
-    assert salary_txn.needs_review == False
+        # Vendor payment with realistic format
+        vendor_txn = [t for t in transactions if "SHARMA" in t.narration.upper()][0]
+        assert vendor_txn.category == "vendor_payment"
+        assert vendor_txn.category_confidence > 0.0
 
-    # UPI should be categorized
-    upi_txn = [t for t in transactions if "UPI" in t.narration.upper()][0]
-    assert upi_txn.category == "upi_transfer"
-    assert upi_txn.category_confidence > 0.0
+        # Unknown garbage should be low confidence / needs review
+        unknown_txn = [t for t in transactions if "UNKNOWN" in t.narration.upper()][0]
+        assert unknown_txn.category_confidence < 0.9  # Below threshold
+        assert unknown_txn.needs_review == True
 
-    # TDS should be rule-matched
-    tds_txn = [t for t in transactions if "TDS" in t.narration.upper()][0]
-    assert tds_txn.category == "tds_payment"
-    assert tds_txn.category_confidence == 1.0
-    assert tds_txn.needs_review == False
-
-    # GST should be rule-matched
-    gst_txn = [t for t in transactions if "GST" in t.narration.upper()][0]
-    assert gst_txn.category == "gst_payment"
-    assert gst_txn.category_confidence == 1.0
-
-    # Interest should be rule-matched
-    interest_txn = [t for t in transactions if "INTEREST" in t.narration.upper()][0]
-    assert interest_txn.category == "interest_income"
-    assert interest_txn.category_confidence == 1.0
-
-    # Vendor payment with realistic format
-    vendor_txn = [t for t in transactions if "SHARMA" in t.narration.upper()][0]
-    assert vendor_txn.category == "vendor_payment"
-    assert vendor_txn.category_confidence > 0.0
-
-    # Unknown garbage should be low confidence / needs review
-    unknown_txn = [t for t in transactions if "UNKNOWN" in t.narration.upper()][0]
-    assert unknown_txn.category_confidence < 0.9  # Below threshold
-    assert unknown_txn.needs_review == True
-
-    db.close()
-    os.remove("test_e2e.csv")
+        db.close()
+    finally:
+        if os.path.exists("test_e2e.csv"):
+            os.remove("test_e2e.csv")
 
     print(f"E2E test passed: {len(transactions)} transactions categorized")
     print("Categories:", {k: v[0] for k, v in categories.items()})

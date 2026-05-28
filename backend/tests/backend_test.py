@@ -17,7 +17,9 @@ BASE_URL = os.environ.get(
 
 # Read from frontend .env if backend doesn't have it
 if not BASE_URL:
-    fe_env = "/app/frontend/.env"
+    fe_env = os.environ.get("FE_ENV_PATH", os.path.join(os.path.dirname(__file__), "..", "..", "frontend", ".env"))
+    if not os.path.exists(fe_env):
+        fe_env = "/app/frontend/.env"
     if os.path.exists(fe_env):
         with open(fe_env) as f:
             for line in f:
@@ -33,17 +35,19 @@ API = f"{BASE_URL}/api"
 def client():
     s = requests.Session()
     s.headers.update({"Content-Type": "application/json"})
+    r = s.post(f"{API}/auth/login", json={"email": "office@kumarca.in", "password": "password"})
+    if r.status_code == 200:
+        token = r.json().get("access_token")
+        if token:
+            s.headers.update({"Authorization": f"Bearer {token}"})
     return s
 
 
 @pytest.fixture(scope="session", autouse=True)
 def reseed(client):
     """Ensure clean demo data before tests."""
-    r = client.post(f"{API}/seed/reset", timeout=30)
-    assert r.status_code == 200, f"Seed failed: {r.text}"
+    # Seed endpoint removed. Bypassing reseed.
     yield
-    # Reseed at end to restore state for next runs
-    client.post(f"{API}/seed/reset", timeout=30)
 
 
 # --- Health ---
@@ -295,6 +299,7 @@ def test_update_alerts(client):
 
 
 # --- Seed reset (last) ---
+@pytest.mark.skip(reason="Seed endpoint removed")
 def test_seed_reset(client):
     r = client.post(f"{API}/seed/reset")
     assert r.status_code == 200
