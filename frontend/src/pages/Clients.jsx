@@ -61,6 +61,7 @@ export default function Clients() {
 
   useEffect(() => {
     fetchClients();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, healthFilter]);
 
   const summary = useMemo(
