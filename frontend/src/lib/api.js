@@ -87,3 +87,37 @@ export const getComplianceCalendar = (clientId, status) =>
   http.get("/compliance/calendar", { params: { client_id: clientId, status } }).then((r) => r.data);
 export const markFiled = (id, filedBy = "ca_user") =>
   http.post(`/compliance/${id}/mark-filed`, { filed_by: filedBy }).then((r) => r.data);
+
+// ----- Imports -----
+export const importPurchaseRegister = (clientId, month, year, file) => {
+  const fd = new FormData();
+  fd.append("file", file);
+  return http
+    .post("/import/purchase-register", fd, {
+      params: { client_id: clientId, period_month: month, period_year: year },
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((r) => r.data);
+};
+
+export const importGSTR2B = (clientId, month, year, file) => {
+  const fd = new FormData();
+  fd.append("file", file);
+  return http
+    .post("/import/gstr2b", fd, {
+      params: { client_id: clientId, period_month: month, period_year: year },
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((r) => r.data);
+};
+
+export const importBankStatement = (clientId, fy, file) => {
+  const fd = new FormData();
+  fd.append("file", file);
+  return http
+    .post("/import/bank-statement", fd, {
+      params: { client_id: clientId, fy },
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((r) => r.data);
+};

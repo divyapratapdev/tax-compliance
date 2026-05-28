@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { AlertCircle, Download, Calculator, TrendingDown, Building2 } from "lucide-react";
+import { AlertCircle, Download, Calculator, TrendingDown, Building2, Upload } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { useClients } from "@/components/ClientContext";
-import { getTDSSummary, getTDSMissed, getTDSVendors } from "@/lib/api";
+import { getTDSSummary, getTDSMissed, getTDSVendors, importBankStatement } from "@/lib/api";
 import { formatINR, formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/Skeleton";
@@ -18,7 +18,12 @@ export default function TDSAlerts() {
   const [loading, setLoading] = useState(false);
 
   const activeClient = selected !== "all" ? selected : null;
+  
   useEffect(() => {
+    loadData();
+  }, [activeClient, fy]);
+
+  const loadData = () => {
     setLoading(true);
     Promise.all([
       getTDSSummary(activeClient, fy),
@@ -30,7 +35,24 @@ export default function TDSAlerts() {
       setVendors(v.vendors || []);
       setLoading(false);
     }).catch(() => { toast.error("Failed to load TDS data"); setLoading(false); });
-  }, [activeClient, fy]);
+  };
+
+  const handleUploadBankStatement = async (e) => {
+    if (!activeClient) {
+      toast.error("Please select a specific client first");
+      return;
+    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const toastId = toast.loading("Uploading Bank Statement...");
+    try {
+      await importBankStatement(activeClient, fy, file);
+      toast.success("Bank Statement imported successfully!", { id: toastId });
+      loadData();
+    } catch (err) {
+      toast.error("Failed to import Bank Statement", { id: toastId });
+    }
+  };
 
   if (loading || !summary) return (
     <div className="animate-fade-in space-y-6" data-testid="tds-loading">
@@ -52,33 +74,42 @@ export default function TDSAlerts() {
         title="TDS Alerts"
         subtitle="Missed deductions, vendor cumulative tracking, and Form 26Q export"
         actions={
-          <div className="flex items-center gap-2">
-            <select
-              value={selected}
-              onChange={(e) => setSelected(e.target.value)}
-              data-testid="tds-client-select"
-              className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white font-mono"
-            >
-              <option value="all">Firm-wide</option>
-              {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <select
-              value={fy}
-              onChange={(e) => setFy(e.target.value)}
-              className="bg-white border border-slate-200 text-sm font-medium pl-3 pr-8 py-2 rounded-md hover:bg-slate-50 focus:ring-2 focus:ring-navy-600/30"
-              data-testid="tds-fy-select"
-            >
-              {(() => { const y = new Date().getFullYear(); return [`${y-1}-${String(y).slice(2)}`, `${y}-${String(y+1).slice(2)}`, `${y+1}-${String(y+2).slice(2)}`]; })().map((f) => (
-                <option key={f} value={f}>FY {f}</option>
-              ))}
-            </select>
-            <button
-              data-testid="tds-generate-btn"
-              className="flex items-center gap-2 px-4 py-2 bg-navy-600 text-white rounded-md text-sm font-semibold hover:bg-navy-700 transition"
-              onClick={() => toast.info("Form 26Q XML generation coming soon")}
-            >
-              <Download className="h-4 w-4" /> Generate 26Q XML
-            </button>
+          <div className="flex flex-col gap-3 items-end">
+            <div className="flex items-center gap-2">
+              <label className="cursor-pointer flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 rounded-md text-sm hover:bg-slate-200 transition font-medium border border-slate-200">
+                <Upload className="h-4 w-4" />
+                Upload Bank Statement
+                <input type="file" className="hidden" accept=".csv" onChange={handleUploadBankStatement} />
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={selected}
+                onChange={(e) => setSelected(e.target.value)}
+                data-testid="tds-client-select"
+                className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white font-mono"
+              >
+                <option value="all">Firm-wide</option>
+                {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <select
+                value={fy}
+                onChange={(e) => setFy(e.target.value)}
+                className="bg-white border border-slate-200 text-sm font-medium pl-3 pr-8 py-2 rounded-md hover:bg-slate-50 focus:ring-2 focus:ring-navy-600/30"
+                data-testid="tds-fy-select"
+              >
+                {(() => { const y = new Date().getFullYear(); return [`${y-1}-${String(y).slice(2)}`, `${y}-${String(y+1).slice(2)}`, `${y+1}-${String(y+2).slice(2)}`]; })().map((f) => (
+                  <option key={f} value={f}>FY {f}</option>
+                ))}
+              </select>
+              <button
+                data-testid="tds-generate-btn"
+                className="flex items-center gap-2 px-4 py-2 bg-navy-600 text-white rounded-md text-sm font-semibold hover:bg-navy-700 transition"
+                onClick={() => toast.info("Form 26Q XML generation coming soon")}
+              >
+                <Download className="h-4 w-4" /> Generate 26Q XML
+              </button>
+            </div>
           </div>
         }
       />

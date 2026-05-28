@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { ShieldCheck, ShieldAlert, ShieldQuestion, CheckCircle2, AlertCircle, FileText, ArrowRight, Loader2 } from "lucide-react";
+import { ShieldCheck, ShieldAlert, ShieldQuestion, CheckCircle2, AlertCircle, FileText, ArrowRight, Loader2, Upload } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge, mismatchTone } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { useClients } from "@/components/ClientContext";
-import { getGSTSummary, listMismatches, resolveMismatch } from "@/lib/api";
+import { getGSTSummary, listMismatches, resolveMismatch, importPurchaseRegister, importGSTR2B } from "@/lib/api";
 import { formatINR, formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import { KPICard } from "@/components/KPICard";
@@ -26,6 +26,10 @@ export default function GSTReconciliation() {
 
   useEffect(() => {
     if (!activeClient) return;
+    loadData();
+  }, [activeClient, month, year]);
+
+  const loadData = () => {
     setLoading(true);
     Promise.all([
       getGSTSummary(activeClient, month, year),
@@ -38,7 +42,33 @@ export default function GSTReconciliation() {
       toast.error("Failed to load reconciliation data");
       setLoading(false);
     });
-  }, [activeClient, month, year]);
+  };
+
+  const handleUploadPR = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const toastId = toast.loading("Uploading Purchase Register...");
+    try {
+      await importPurchaseRegister(activeClient, month, year, file);
+      toast.success("Purchase Register imported successfully!", { id: toastId });
+      loadData();
+    } catch (err) {
+      toast.error("Failed to import Purchase Register", { id: toastId });
+    }
+  };
+
+  const handleUpload2B = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const toastId = toast.loading("Uploading GSTR-2B...");
+    try {
+      await importGSTR2B(activeClient, month, year, file);
+      toast.success("GSTR-2B imported successfully!", { id: toastId });
+      loadData();
+    } catch (err) {
+      toast.error("Failed to import GSTR-2B", { id: toastId });
+    }
+  };
 
   const filtered = typeFilter ? mismatches.filter((m) => m.type === typeFilter) : mismatches;
 
@@ -65,33 +95,47 @@ export default function GSTReconciliation() {
         title="GST Reconciliation"
         subtitle="3-pass matching: client books ↔ GSTR-2A/2B"
         actions={
-          <div className="flex items-center gap-2" data-testid="gst-period-controls">
-            <select
-              value={activeClient}
-              onChange={(e) => setSelected(e.target.value)}
-              className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white font-mono"
-              data-testid="gst-client-select"
-            >
-              {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <select
-              value={month}
-              onChange={(e) => setMonth(parseInt(e.target.value))}
-              className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white"
-              data-testid="gst-month-select"
-            >
-              {MONTHS.map((m, i) => <option key={m} value={i+1}>{m}</option>)}
-            </select>
-            <select
-              value={year}
-              onChange={(e) => setYear(parseInt(e.target.value))}
-              className="bg-white border border-slate-200 text-sm font-medium pl-3 pr-8 py-2 rounded-md hover:bg-slate-50 focus:ring-2 focus:ring-navy-600/30"
-              data-testid="gst-year-select"
-            >
-              {Array.from({length: 5}, (_, i) => new Date().getFullYear() - 2 + i).map((y) => (
-                <option key={y} value={y}>FY {y}-{String(y + 1).slice(2)}</option>
-              ))}
-            </select>
+          <div className="flex flex-col gap-3 items-end" data-testid="gst-period-controls">
+            <div className="flex items-center gap-2">
+              <label className="cursor-pointer flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 rounded-md text-sm hover:bg-slate-200 transition font-medium border border-slate-200">
+                <Upload className="h-4 w-4" />
+                Upload Purchase Register
+                <input type="file" className="hidden" accept=".csv" onChange={handleUploadPR} />
+              </label>
+              <label className="cursor-pointer flex items-center gap-2 px-3 py-2 bg-navy-600 text-white rounded-md text-sm hover:bg-navy-700 transition font-medium">
+                <Upload className="h-4 w-4" />
+                Upload GSTR-2B
+                <input type="file" className="hidden" accept=".csv,.json" onChange={handleUpload2B} />
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={activeClient}
+                onChange={(e) => setSelected(e.target.value)}
+                className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white font-mono"
+                data-testid="gst-client-select"
+              >
+                {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <select
+                value={month}
+                onChange={(e) => setMonth(parseInt(e.target.value))}
+                className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white"
+                data-testid="gst-month-select"
+              >
+                {MONTHS.map((m, i) => <option key={m} value={i+1}>{m}</option>)}
+              </select>
+              <select
+                value={year}
+                onChange={(e) => setYear(parseInt(e.target.value))}
+                className="bg-white border border-slate-200 text-sm font-medium pl-3 pr-8 py-2 rounded-md hover:bg-slate-50 focus:ring-2 focus:ring-navy-600/30"
+                data-testid="gst-year-select"
+              >
+                {Array.from({length: 5}, (_, i) => new Date().getFullYear() - 2 + i).map((y) => (
+                  <option key={y} value={y}>FY {y}-{String(y + 1).slice(2)}</option>
+                ))}
+              </select>
+            </div>
           </div>
         }
       />
