@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { useClients } from "@/components/ClientContext";
 import { getGSTSummary, listMismatches, resolveMismatch } from "@/lib/api";
 import { formatINR, formatDate } from "@/lib/format";
+import { toast } from "sonner";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
@@ -38,8 +39,13 @@ export default function GSTReconciliation() {
   const handleResolve = async (id) => {
     const notes = window.prompt("Resolution notes (optional):", "Followed up with supplier");
     if (notes === null) return;
-    await resolveMismatch(id, notes);
-    setMismatches((prev) => prev.filter((m) => m.id !== id));
+    try {
+      await resolveMismatch(id, notes);
+      toast.success("Mismatch resolved");
+      setMismatches((prev) => prev.filter((m) => m.id !== id));
+    } catch (e) {
+      toast.error("Failed to resolve mismatch");
+    }
   };
 
   if (!activeClient) {

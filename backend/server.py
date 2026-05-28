@@ -62,7 +62,7 @@ from dotenv import load_dotenv
 
 from auth_utils import verify_password, get_password_hash, create_access_token, decode_access_token
 from local_ocr import process_document_background
-import os
+import re
 
 # --------------------------------------------------------------------------- #
 # Config
@@ -195,8 +195,7 @@ def _now() -> datetime:
 
 
 def _strip_id(doc: Dict[str, Any]) -> Dict[str, Any]:
-    doc.pop("_id", None)
-    return doc
+    return {k: v for k, v in doc.items() if k != "_id"}
 
 
 def _client_health(open_mismatches: int, missed_tds: float, overdue_compliance: int) -> str:
@@ -219,12 +218,14 @@ async def seed_demo_data(force: bool = False) -> Dict[str, int]:
     if existing and not force:
         return {"status": "already_seeded"}
 
-    # Wipe & re-seed
-    for coll in [
-        "firms", "clients", "documents", "mismatches",
-        "tds_entries", "compliance_items"
-    ]:
-        await db[coll].delete_many({})
+    # Wipe & re-seed (scoped to demo firm only — never touch other firms' data)
+    await db.firms.delete_many({"id": DEMO_FIRM_ID})
+    demo_clients = await db.clients.find({"ca_firm_id": DEMO_FIRM_ID}, {"id": 1}).to_list(500)
+    demo_client_ids = [c["id"] for c in demo_clients]
+    if demo_client_ids:
+        for coll in ["documents", "mismatches", "tds_entries", "compliance_items"]:
+            await db[coll].delete_many({"client_id": {"$in": demo_client_ids}})
+    await db.clients.delete_many({"ca_firm_id": DEMO_FIRM_ID})
 
     now = _now()
 
@@ -629,6 +630,14 @@ api = APIRouter(prefix="/api")
 
 @app.on_event("startup")
 async def on_startup() -> None:
+    # Create indexes for query performance
+    await db.users.create_index("email", unique=True)
+    await db.clients.create_index("ca_firm_id")
+    await db.clients.create_index("id", unique=True)
+    await db.documents.create_index("client_id")
+    await db.mismatches.create_index([("client_id", 1), ("is_resolved", 1)])
+    await db.tds_entries.create_index([("client_id", 1), ("financial_year", 1)])
+    await db.compliance_items.create_index([("client_id", 1), ("status", 1)])
     await seed_demo_data(force=False)
 
 
@@ -655,6 +664,12 @@ class RegisterRequest(BaseModel):
 
 @api.post("/auth/register")
 async def register(payload: RegisterRequest):
+    # Validate email format
+    if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', payload.email):
+        raise HTTPException(400, "Invalid email format")
+    # Validate password strength
+    if len(payload.password) < 8:
+        raise HTTPException(400, "Password must be at least 8 characters")
     if await db.users.find_one({"email": payload.email}):
         raise HTTPException(400, "Email already registered")
     
@@ -766,10 +781,11 @@ async def list_clients(
 ) -> Dict[str, Any]:
     q: Dict[str, Any] = {"ca_firm_id": current_user["firm_id"]}
     if search:
+        safe_search = re.escape(search)
         q["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"gstin": {"$regex": search, "$options": "i"}},
-            {"pan": {"$regex": search, "$options": "i"}},
+            {"name": {"$regex": safe_search, "$options": "i"}},
+            {"gstin": {"$regex": safe_search, "$options": "i"}},
+            {"pan": {"$regex": safe_search, "$options": "i"}},
         ]
     docs = await db.clients.find(q).to_list(500)
     enriched = [await _enrich_client(c) for c in docs]
@@ -825,6 +841,11 @@ async def delete_client(client_id: str, current_user: Dict[str, Any] = Depends(g
     if not c:
         raise HTTPException(404, "Client not found")
     await db.clients.delete_one({"id": client_id})
+    # Cascade: remove orphaned data for deleted client
+    await db.documents.delete_many({"client_id": client_id})
+    await db.mismatches.delete_many({"client_id": client_id})
+    await db.tds_entries.delete_many({"client_id": client_id})
+    await db.compliance_items.delete_many({"client_id": client_id})
     return {"status": "success"}
 
 
@@ -840,29 +861,33 @@ async def dashboard_summary(current_user: Dict[str, Any] = Depends(get_current_u
     critical = sum(1 for c in enriched if c["health"] == "critical")
     safe = sum(1 for c in enriched if c["health"] == "safe")
 
+    # Scope all aggregations to this firm's clients only (multi-tenant isolation)
+    firm_client_ids = [c["id"] for c in clients]
+
     # ITC at risk = sum of mismatch difference (missing_in_2a + amount_mismatch only)
     itc_agg = await db.mismatches.aggregate([
-        {"$match": {"is_resolved": False, "type": {"$in": ["missing_in_2a", "amount_mismatch"]}}},
+        {"$match": {"is_resolved": False, "type": {"$in": ["missing_in_2a", "amount_mismatch"]}, "client_id": {"$in": firm_client_ids}}},
         {"$group": {"_id": None, "total": {"$sum": "$books_tax"}}}
     ]).to_list(1)
     itc_at_risk = itc_agg[0]["total"] if itc_agg else 0.0
 
     # Missed TDS
     tds_agg = await db.tds_entries.aggregate([
-        {"$match": {"missed_deduction": True}},
+        {"$match": {"missed_deduction": True, "client_id": {"$in": firm_client_ids}}},
         {"$group": {"_id": None, "missed": {"$sum": "$tds_amount"}, "penalty": {"$sum": "$penalty_estimate"}}}
     ]).to_list(1)
     missed_tds = tds_agg[0]["missed"] if tds_agg else 0.0
     missed_penalty = tds_agg[0]["penalty"] if tds_agg else 0.0
 
-    upcoming_count = await db.compliance_items.count_documents({"status": "pending"})
-    overdue_count = await db.compliance_items.count_documents({"status": "missed"})
+    upcoming_count = await db.compliance_items.count_documents({"status": "pending", "client_id": {"$in": firm_client_ids}})
+    overdue_count = await db.compliance_items.count_documents({"status": "missed", "client_id": {"$in": firm_client_ids}})
 
     # Next 7 days
     today = _now()
     seven_days = today + timedelta(days=7)
     upcoming_items = await db.compliance_items.find({
         "status": "pending",
+        "client_id": {"$in": firm_client_ids},
     }).to_list(500)
     upcoming_7 = sorted(
         [i for i in upcoming_items if i.get("due_date") and i["due_date"] <= seven_days.isoformat()],
@@ -883,7 +908,7 @@ async def dashboard_summary(current_user: Dict[str, Any] = Depends(get_current_u
         upcoming_enriched.append(item)
 
     # Top missed TDS
-    top_missed = await db.tds_entries.find({"missed_deduction": True}).sort("tds_amount", -1).limit(5).to_list(5)
+    top_missed = await db.tds_entries.find({"missed_deduction": True, "client_id": {"$in": firm_client_ids}}).sort("tds_amount", -1).limit(5).to_list(5)
     top_missed_enriched = [{**_strip_id(t), "client_name": cname.get(t["client_id"], "—")} for t in top_missed]
 
     return {
@@ -947,12 +972,17 @@ async def upload_document(
     allowed = {"bank_statement", "invoice", "gstr2a"}
     if doc_type not in allowed:
         raise HTTPException(400, f"doc_type must be one of {allowed}")
+    # Check size before reading full file to prevent OOM attacks
+    if file.size and file.size > 10 * 1024 * 1024:
+        raise HTTPException(413, "File too large (max 10MB)")
     contents = await file.read()
     if len(contents) > 10 * 1024 * 1024:
         raise HTTPException(413, "File too large (max 10MB)")
         
     doc_id = str(uuid.uuid4())
-    file_path = f"uploads/{doc_id}_{file.filename}"
+    # Sanitize filename to prevent path traversal attacks
+    safe_filename = Path(file.filename).name
+    file_path = f"uploads/{doc_id}_{safe_filename}"
     with open(file_path, "wb") as f:
         f.write(contents)
         
@@ -1094,7 +1124,7 @@ async def tds_summary(client_id: Optional[str] = None, fy: str = "2025-26", curr
     missed_count = sum(1 for e in entries if e["missed_deduction"])
 
     # Quarterly
-    quarters: Dict[str, Dict[str, float]] = {q: {"entries": 0, "computed": 0.0, "deducted": 0.0, "missed": 0.0, "penalty": 0.0} for q in ("Q1", "Q2", "Q3", "Q4")}
+    quarters: Dict[str, Dict[str, float]] = {qtr: {"entries": 0, "computed": 0.0, "deducted": 0.0, "missed": 0.0, "penalty": 0.0} for qtr in ("Q1", "Q2", "Q3", "Q4")}
     for e in entries:
         qk = e["quarter"]
         if qk in quarters:

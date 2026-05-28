@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { useClients } from "@/components/ClientContext";
 import { listDocuments, uploadDocument } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { toast } from "sonner";
 
 const STATUS_TONE = { completed: "success", processing: "pending", failed: "danger" };
 const STATUS_ICON = { completed: CheckCircle2, processing: Loader2, failed: XCircle };
@@ -41,13 +42,14 @@ export default function Documents() {
 
   const handleFile = async (file) => {
     if (!file) return;
-    if (!uploadClient) { alert("Pick a client first"); return; }
+    if (!uploadClient) { toast.error("Pick a client first"); return; }
     setUploading(true);
     try {
       await uploadDocument(uploadClient, docType, file);
+      toast.success("Document uploaded and queued for processing");
       load();
     } catch (e) {
-      alert(`Upload failed: ${e?.response?.data?.detail || e.message}`);
+      toast.error(`Upload failed: ${e?.response?.data?.detail || e.message}`);
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";

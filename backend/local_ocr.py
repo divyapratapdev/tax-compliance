@@ -40,8 +40,9 @@ async def process_document_background(db, doc_id: str, file_path: str, doc_type:
     await db.documents.update_one(
         {"id": doc_id},
         {"$set": {
-            "ocr_status": result,
-            "ocr_notes": notes,
-            "processed_at": datetime.now(timezone.utc).isoformat()
+            "ocr_status": "completed" if result == "processed" else "failed",
+            "ocr_error": notes if result == "failed" else None,
+            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "extracted_count": max(1, len(extracted_text) // 100) if result == "processed" else None
         }}
     )

@@ -9,7 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Secret key for JWT. In production, this should be a strong random string.
-SECRET_KEY = os.getenv("JWT_SECRET", "super-secret-taxpilot-key-for-dev")
+SECRET_KEY = os.getenv("JWT_SECRET")
+if not SECRET_KEY:
+    if os.getenv("RENDER") or os.getenv("ENVIRONMENT") == "production":
+        raise ValueError("FATAL: JWT_SECRET environment variable is not set in production!")
+    SECRET_KEY = "super-secret-taxpilot-key-for-dev"
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
