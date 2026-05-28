@@ -59,10 +59,11 @@ export default function Clients() {
       .catch(() => setLoading(false));
   };
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     fetchClients();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, healthFilter]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const summary = useMemo(
     () => ({

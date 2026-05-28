@@ -31,7 +31,9 @@ export default function Compliance() {
       .then((d) => { setItems(d.items || []); setLoading(false); })
       .catch(() => setLoading(false));
   };
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(load, [selected, statusFilter]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const grouped = useMemo(() => {
     const buckets = { overdue: [], today: [], thisWeek: [], next30: [], later: [], filed: [] };
