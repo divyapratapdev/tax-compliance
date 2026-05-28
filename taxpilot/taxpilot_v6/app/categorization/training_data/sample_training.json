@@ -1,0 +1,62 @@
+[
+  {
+    "narration": "SALARY CREDIT FROM EMPLOYER FOR JAN 2024",
+    "category": "salary"
+  },
+  {
+    "narration": "UPI PAYMENT TO ZOMATO FOR FOOD ORDER",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "NEFT TDS PAYMENT TO NSDL CHALLAN 234",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "GST PAYMENT CGST SGST FOR DEC 2023",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "EMI DEDUCTION FOR HOME LOAN HDFC BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "ELECTRICITY BILL PAYMENT TATA POWER",
+    "category": "utility"
+  },
+  {
+    "narration": "UBER TRIP TO AIRPORT MUMBAI",
+    "category": "travel"
+  },
+  {
+    "narration": "OFFICE RENT PAYMENT TO LANDLORD",
+    "category": "office_expense"
+  },
+  {
+    "narration": "INTEREST CREDITED TO SAVINGS ACCOUNT",
+    "category": "interest_income"
+  },
+  {
+    "narration": "BANK CHARGES FOR NEFT TRANSACTION",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "CA FEES FOR AUDIT SERVICES",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "INSURANCE PREMIUM LIC POLICY",
+    "category": "insurance"
+  },
+  {
+    "narration": "SIP INVESTMENT IN MUTUAL FUND",
+    "category": "investment"
+  },
+  {
+    "narration": "PURCHASE FROM ABC SUPPLIERS PVT LTD",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "RTGS TRANSFER TO VENDOR ACCOUNT",
+    "category": "neft_rtgs"
+  }
+]

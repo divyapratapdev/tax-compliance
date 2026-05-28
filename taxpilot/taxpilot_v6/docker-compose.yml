@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+
+  # ── Spring Boot API Gateway ─────────────────────────────────────────────
+  gateway:
+    build:
+      context: ./taxpilot-gateway
+      dockerfile: Dockerfile
+    container_name: taxpilot-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=taxpilot_gateway
+      - DB_USER=taxpilot
+      - DB_PASSWORD=taxpilot123
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET:-taxpilot-jwt-secret-change-in-production-min-32-chars}
+      - PYTHON_ENGINE_URL=http://ingestion-service:8000
+    depends_on:
+      - mysql
+      - redis
+      - ingestion-service
+    restart: unless-stopped
+    networks:
+      - taxpilot-network
+
+  # ── Python FastAPI Engine ───────────────────────────────────────────────
+  ingestion-service:
+    build: .
+    container_name: taxpilot-ingestion
+    # Not exposed publicly — gateway proxies to it via internal network
+    expose:
+      - "8000"
+    environment:
+      - USE_SQLITE=false
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=taxpilot
+      - DB_USER=taxpilot
+      - DB_PASSWORD=taxpilot123
+      - UPLOAD_DIR=/app/uploads
+      - TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      - mysql
+      - redis
+    restart: unless-stopped
+    networks:
+      - taxpilot-network
+
+  # ── MySQL ───────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: taxpilot-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword123
+      - MYSQL_ROOT_HOST=%
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - taxpilot-network
+
+  # ── Redis ───────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: taxpilot-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - taxpilot-network
+
+  # ── Nginx reverse proxy ─────────────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: taxpilot-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - gateway
+    restart: unless-stopped
+    networks:
+      - taxpilot-network
+
+volumes:
+  mysql_data:
+
+networks:
+  taxpilot-network:
+    driver: bridge

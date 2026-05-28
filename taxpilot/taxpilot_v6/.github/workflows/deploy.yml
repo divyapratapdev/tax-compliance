@@ -1,0 +1,134 @@
+name: TaxPilot CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PYTHON: ${{ github.repository_owner }}/taxpilot-engine
+  IMAGE_GATEWAY: ${{ github.repository_owner }}/taxpilot-gateway
+
+jobs:
+  # ── Test Python engine ────────────────────────────────────────────────
+  test-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        env:
+          USE_SQLITE: "true"
+        run: python -m pytest tests/ -v --tb=short
+
+  # ── Test Spring Boot gateway ─────────────────────────────────────────
+  test-gateway:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: taxpilot-gateway
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build and test
+        run: mvn clean verify -q
+
+  # ── Build and push Docker images ──────────────────────────────────────
+  build-and-push:
+    needs: [test-python, test-gateway]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Python engine
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PYTHON }}:latest
+
+      - name: Build Spring Boot gateway JAR
+        working-directory: taxpilot-gateway
+        run: mvn clean package -DskipTests -q
+
+      - name: Build and push gateway image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./taxpilot-gateway
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_GATEWAY }}:latest
+
+  # ── Deploy to Hetzner CX32 ────────────────────────────────────────────
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USER }}
+          key:      ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/taxpilot
+
+            # Pull latest images
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io \
+              -u ${{ github.actor }} --password-stdin
+
+            docker pull ghcr.io/${{ env.IMAGE_PYTHON }}:latest
+            docker pull ghcr.io/${{ env.IMAGE_GATEWAY }}:latest
+
+            # Update compose to use pre-built images
+            export PYTHON_IMAGE=ghcr.io/${{ env.IMAGE_PYTHON }}:latest
+            export GATEWAY_IMAGE=ghcr.io/${{ env.IMAGE_GATEWAY }}:latest
+
+            docker compose up -d --no-build
+
+            # Health check: wait up to 60s for gateway
+            for i in $(seq 1 12); do
+              if curl -sf http://localhost:8080/actuator/health; then
+                echo "Gateway healthy"
+                break
+              fi
+              echo "Waiting... ($i/12)"
+              sleep 5
+            done
+
+            docker system prune -f
+            echo "Deploy complete: $(date)"

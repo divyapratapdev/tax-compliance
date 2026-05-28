@@ -1,0 +1,171 @@
+{
+  "project_name": "TaxPilot",
+  "domain": "Finance / Tax SaaS for CA Firms",
+  "theme_strategy": {
+    "primary_theme": "light",
+    "archetype": "Swiss & High-Contrast (Financial Variant)",
+    "description": "An authoritative, high-density, trust-inspiring dashboard tailored for 50-year-old CA partners in India. Rejects startup-fluff (no purple gradients, no emojis). Relies on Swiss-style structural alignment, crisp typography optimized for tabular data, and highly intentional use of color for alerts (Missed TDS, ITC mismatches)."
+  },
+  "colors": {
+    "background": {
+      "app": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "sidebar": "#081326",
+      "sidebar_hover": "#112240"
+    },
+    "text": {
+      "primary": "#0F172A",
+      "secondary": "#475569",
+      "tertiary": "#94A3B8",
+      "inverse": "#F8FAFC"
+    },
+    "brand": {
+      "primary": "#0B2B5B",
+      "primary_hover": "#082046",
+      "accent": "#0284C7"
+    },
+    "semantic": {
+      "danger": {
+        "text": "#DC2626",
+        "bg": "#FEF2F2",
+        "border": "#FCA5A5"
+      },
+      "warning": {
+        "text": "#D97706",
+        "bg": "#FFFBEB",
+        "border": "#FCD34D"
+      },
+      "success": {
+        "text": "#16A34A",
+        "bg": "#F0FDF4",
+        "border": "#86EFAC"
+      }
+    },
+    "borders": "#E2E8F0"
+  },
+  "typography": {
+    "font_families": {
+      "heading": "Cabinet Grotesk, sans-serif",
+      "body": "IBM Plex Sans, sans-serif",
+      "mono": "IBM Plex Mono, monospace"
+    },
+    "scales": {
+      "h1": "text-3xl font-semibold tracking-tight text-slate-900",
+      "h2": "text-2xl font-semibold tracking-tight text-slate-900",
+      "h3": "text-xl font-medium tracking-tight text-slate-800",
+      "h4": "text-base font-semibold tracking-wide uppercase text-slate-500",
+      "body": "text-sm text-slate-700 leading-relaxed",
+      "small": "text-xs text-slate-500",
+      "data_large": "text-4xl font-bold font-mono tracking-tighter",
+      "data_medium": "text-2xl font-semibold font-mono tracking-tight",
+      "table_cell": "text-sm font-medium text-slate-700 tabular-nums"
+    },
+    "instructions": "Always use 'tabular-nums' class for any financial figures or dates to ensure vertical alignment in tables. Indian number system formatting (e.g. ₹ 1,50,00,000) is mandatory."
+  },
+  "layout_spacing": {
+    "app_shell": "flex h-screen overflow-hidden bg-slate-50",
+    "sidebar": "w-64 bg-sidebar text-white flex-shrink-0",
+    "main_content": "flex-1 flex flex-col min-w-0 overflow-hidden",
+    "topbar": "h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0",
+    "page_container": "flex-1 overflow-auto p-8",
+    "grid_system": {
+      "kpi_strip": "grid grid-cols-1 md:grid-cols-4 gap-6 mb-8",
+      "bento_dashboard": "grid grid-cols-1 lg:grid-cols-12 gap-6"
+    },
+    "surface_styles": {
+      "card": "bg-white border border-slate-200 rounded-lg shadow-sm p-6",
+      "card_danger": "bg-white border border-red-200 rounded-lg shadow-sm p-6 border-t-4 border-t-red-600",
+      "card_success": "bg-white border border-green-200 rounded-lg shadow-sm p-6 border-t-4 border-t-green-600",
+      "table_wrapper": "border border-slate-200 rounded-lg overflow-hidden bg-white"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#0B2B5B] text-white hover:bg-[#082046] px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm",
+      "secondary": "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-md text-sm font-medium transition-colors",
+      "danger": "bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+    },
+    "tables": {
+      "header": "bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider py-3 px-4 text-left",
+      "row": "border-b border-slate-100 hover:bg-slate-50/50 transition-colors",
+      "cell": "py-3 px-4 text-sm text-slate-700",
+      "cell_numeric": "py-3 px-4 text-sm text-slate-900 font-mono text-right tabular-nums",
+      "rules": "Highly dense tables. Right-align all numeric values. Add zebra striping if rows exceed 15."
+    },
+    "badges": {
+      "safe": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800",
+      "risk": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800",
+      "pending": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800",
+      "neutral": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800"
+    },
+    "icons": {
+      "library": "lucide-react",
+      "style": "Use 18px-20px icons, stroke-width 2, color matched to text hierarchy. No emojis under any circumstance."
+    }
+  },
+  "pages": {
+    "executive_dashboard": {
+      "layout": "4-col KPI strip at top. 12-col grid below: 8-col for Compliance Timeline/Missed Alerts, 4-col for Risk Summary pie/bar charts.",
+      "key_elements": [
+        "ITC at Risk Hero Card (emphasize the ₹ amount in Red)",
+        "Upcoming Deadlines List (Next 7 Days)",
+        "Client Health Overview (Safe vs At Risk counts)"
+      ]
+    },
+    "clients_list": {
+      "layout": "Full page table view with robust filters.",
+      "key_elements": [
+        "Search bar (GSTIN/PAN/Name)",
+        "Data table with inline status badges",
+        "Pagination"
+      ]
+    },
+    "documents_upload": {
+      "layout": "Split view: 4-col drag-drop zone, 8-col processing queue list.",
+      "key_elements": [
+        "Dashed border dropzone with muted icon",
+        "Processing list with OCR status pills (Processing, Success, Failed)"
+      ]
+    },
+    "gst_reconciliation": {
+      "layout": "Top controls (Period, Vendor filter). Summary cards. Dense Mismatch Table.",
+      "key_elements": [
+        "3-Pass Match Status Cards",
+        "Mismatch breakdown table (missing_in_2a, missing_in_books, etc.)"
+      ]
+    },
+    "tds_alerts": {
+      "layout": "Hero Warning card on top left. Detailed vendor tracking table below.",
+      "key_elements": [
+        "Total Penalty Estimate Hero (Red background accent)",
+        "Section-wise breakdown",
+        "Generate 26Q XML Button"
+      ]
+    },
+    "compliance_calendar": {
+      "layout": "List/Timeline hybrid view.",
+      "key_elements": [
+        "Date grouped sections",
+        "WhatsApp reminder triggers"
+      ]
+    }
+  },
+  "media": {
+    "images": {
+      "ca_partner_avatar": {
+        "url": "https://images.unsplash.com/photo-1584940120505-117038d90b05?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBjb3Jwb3JhdGUlMjBwcm9mZXNzaW9uYWwlMjBidXNpbmVzc21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc3OTgxODczNHww&ixlib=rb-4.1.0&q=85",
+        "description": "Professional avatar for the topbar user profile",
+        "category": "avatar"
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "INSTALLATION: Add '@fontsource/cabinet-grotesk' and '@fontsource/ibm-plex-sans'. Configure them in tailwind.config.js.",
+    "HTML STRUCTURE: Only use standard HTML/Tailwind for layouts. Use shadcn/ui ONLY for interactive logic (Dialogs, Selects, Calendars).",
+    "TESTING: Every interactive element MUST have a 'data-testid' attribute (e.g., data-testid='upload-invoice-btn').",
+    "DATA FORMATTING: You must implement an Indian currency formatter `new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })`. Do not use default US formatting.",
+    "DENSITY: Keep padding in tables and lists tight (py-2 px-3 or py-3 px-4). Do not introduce unnecessary white space inside data grids.",
+    "COLORS: Do not use purple or teal. Stick to the provided palette: Deep Navy, Slate, Red (danger), Green (success).",
+    "CHARTING: If using Recharts, explicitly use the colors defined in the 'colors.brand' and 'colors.semantic' blocks."
+  ]
+}

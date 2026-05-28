@@ -1,0 +1,63 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: taxpilot-gateway
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:taxpilot_gateway}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USER:taxpilot}
+    password: ${DB_PASSWORD:taxpilot123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate          # Use Flyway/Liquibase in prod; update only in dev
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 4
+          min-idle: 1
+
+# JWT config
+app:
+  jwt:
+    secret: ${JWT_SECRET:taxpilot-super-secret-key-change-in-production-must-be-32-chars-min}
+    expiration-ms: 86400000       # 24 hours
+    refresh-expiration-ms: 604800000  # 7 days
+
+  # Python engine base URL (internal Docker network)
+  python-engine:
+    base-url: ${PYTHON_ENGINE_URL:http://ingestion-service:8000}
+    connect-timeout: 5000
+    read-timeout: 30000
+
+  # Usage metering
+  metering:
+    redis-key-prefix: "usage:"
+    flush-interval-seconds: 3600  # flush Redis → MySQL hourly
+
+  # Rate limits per plan (API calls per day)
+  rate-limits:
+    starter: 500
+    growth: 2000
+    scale: 10000
+    enterprise: -1                # unlimited
+
+logging:
+  level:
+    com.taxpilot: DEBUG
+    org.springframework.security: INFO

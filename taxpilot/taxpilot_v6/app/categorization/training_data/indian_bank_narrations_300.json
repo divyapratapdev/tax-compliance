@@ -1,0 +1,1262 @@
+[
+  {
+    "narration": "NET SALARY SBI UPI/2566942273",
+    "category": "salary"
+  },
+  {
+    "narration": "AXIS BANK LOAN ACCOUNT DEBIT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "SBI PROCESSING FEE",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "CLEANING FOR OFFICE NEFT/814825",
+    "category": "office_expense"
+  },
+  {
+    "narration": "TDS 194A DEPOSIT CHQ/972064",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "GST TAX DEPOSIT CHQ/260263",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "AXIS SAVINGS INTEREST",
+    "category": "interest_income"
+  },
+  {
+    "narration": "NATIONAL ELECTRONIC TRANSFER LAKSHMI IYER",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "PAYROLL CREDIT AMAZON SEP2025",
+    "category": "salary"
+  },
+  {
+    "narration": "SIP FD BOOKING",
+    "category": "investment"
+  },
+  {
+    "narration": "AUDITOR MEHTA FEES PAYMENT",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "CA RAJESH CONSULTATION FEE",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "PNB HOUSING PRINCIPAL REPAYMENT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "GST OUTPUT TAX PAYMENT NEFT/892495",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "MAINTENANCE FOR OFFICE NEFT/329974",
+    "category": "office_expense"
+  },
+  {
+    "narration": "TDS DEPOSIT GOVT CHQ/182582",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "ICICI LOMBARD PREMIUM DEBIT",
+    "category": "insurance"
+  },
+  {
+    "narration": "UPSTOX EQUITY PURCHASE",
+    "category": "investment"
+  },
+  {
+    "narration": "NSDL TDS CHALLAN NEFT/680099",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "UPI-CR/6944142262/RAPIDO",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "ELECTRICITY BILL AIRTEL",
+    "category": "utility"
+  },
+  {
+    "narration": "ICICI COMMISSION",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "MUTUAL FUND UPSTOX",
+    "category": "investment"
+  },
+  {
+    "narration": "ACT FIBERNET POSTPAID BILL",
+    "category": "utility"
+  },
+  {
+    "narration": "UPSTOX SIP PAYMENT",
+    "category": "investment"
+  },
+  {
+    "narration": "VENDOR PAYMENT SHARMA ELECTRICALS NEFT/363626",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "HDFC INT CR",
+    "category": "interest_income"
+  },
+  {
+    "narration": "MUTUAL FUND PAYTM MONEY",
+    "category": "investment"
+  },
+  {
+    "narration": "GOVT GST CGST SGST NEFT/500156",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "194I TDS PAYMENT NEFT/814825",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "MAKEMYTRIP BOOKING UPI/9697354961",
+    "category": "travel"
+  },
+  {
+    "narration": "OFFICE EQUIPMENT BILL",
+    "category": "office_expense"
+  },
+  {
+    "narration": "INDANE BILL PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "GOVT GST CGST SGST NEFT/855731",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "MAKEMYTRIP TRAVEL PAYMENT",
+    "category": "travel"
+  },
+  {
+    "narration": "HOME LOAN EMI AXIS BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "EMI DEDUCTION AXIS BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "UPI-DR/8995059760/FLIPKART/UTIB",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "REDDY CORPORATION SUPPLY PAYMENT CHQ/492077",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "KOTAK PROCESSING FEE",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "MAKEMYTRIP HOTEL BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "UPI AMAZON 6302109556 ICICI",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "PATEL HARDWARE INVOICE PAYMENT NEFT/887352",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "ICICI BANK PRINCIPAL REPAYMENT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "SBI ANNUAL FEE",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "INSURANCE PAYMENT BAJAJ ALLIANZ",
+    "category": "insurance"
+  },
+  {
+    "narration": "HDFC ERGO POLICY PREMIUM NEFT/542666",
+    "category": "insurance"
+  },
+  {
+    "narration": "UPI-DR/6467215542/BOOKMYSHOW/SBI",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "AXIS INT CR",
+    "category": "interest_income"
+  },
+  {
+    "narration": "ADVOCATE SHARMA FEES PAYMENT",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "UPI PAYMENT SWIGGY ICICI",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "MONTHLY STATIONERY OFFICE",
+    "category": "office_expense"
+  },
+  {
+    "narration": "NATIONAL ELECTRONIC TRANSFER REKHA AGARWAL",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "SALARY CREDIT FROM TECH MAHINDRA FOR APR 2024",
+    "category": "salary"
+  },
+  {
+    "narration": "XYZ TRADERS BILL SETTLEMENT NEFT/590785",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT-CR LAKSHMI IYER NEFT/542666",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "GUPTA STEELS INVOICE PAYMENT NEFT/617488",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "MICROSOFT SAL PROCESSING JUL 2025",
+    "category": "salary"
+  },
+  {
+    "narration": "OFFICE RENT BILL",
+    "category": "office_expense"
+  },
+  {
+    "narration": "UPI TRANSFER REDBUS 8588769565",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "QUARTERLY TDS 194J NEFT/329974",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "AXIS BANK LOAN ACCOUNT DEBIT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "OFFICE RENT PAYMENT",
+    "category": "office_expense"
+  },
+  {
+    "narration": "UPI-DR/7767538527/PHONEPE/KKBK",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "GST CHALLAN PAYMENT NEFT/214975",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "TDS 194C DEPOSIT CHQ/269396",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "TDS DEPOSIT GOVT CHQ/867460",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "GST PAYMENT CGST SGST NEFT/813536",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "SBI PRINCIPAL REPAYMENT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "NATIONAL ELECTRONIC TRANSFER VIKRAM SINGH",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "UPI PAYMENT SWIGGY AXIS",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "INSURANCE PAYMENT LIC",
+    "category": "insurance"
+  },
+  {
+    "narration": "SALARY HDFC BANK UPI/1958682846",
+    "category": "salary"
+  },
+  {
+    "narration": "VENDOR PAYMENT XYZ TRADERS NEFT/654816",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "BESCOM UTILITY PAYMENT UPI/6756332150",
+    "category": "utility"
+  },
+  {
+    "narration": "194I TDS PAYMENT NEFT/363626",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "UPI-8612747444-AMAZON-SBI",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "VENDOR PAYMENT DESAI LOGISTICS NEFT/220116",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "TAX DEDUCTED AT SOURCE 194H NEFT/725380",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "MSEB BROADBAND PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "UPI ZOMATO 7583090712 AXIS",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "NSDL TDS CHALLAN NEFT/214975",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "VENDOR PAYMENT RAO AGENCIES NEFT/500156",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "ICICI LOMBARD INSURANCE PREMIUM",
+    "category": "insurance"
+  },
+  {
+    "narration": "OFFICE EQUIPMENT PAYMENT",
+    "category": "office_expense"
+  },
+  {
+    "narration": "GST CHALLAN PAYMENT NEFT/663054",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "PROFESSIONAL FEES AUDITOR MEHTA",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "AUDIT FEES AUDITOR MEHTA",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "OFFICE FURNITURE BILL",
+    "category": "office_expense"
+  },
+  {
+    "narration": "TDS DEPOSIT GOVT CHQ/160738",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "AXIS COMMISSION",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "FLIPKART SAL PROCESSING APR 2023",
+    "category": "salary"
+  },
+  {
+    "narration": "MUTUAL FUND PAYTM MONEY",
+    "category": "investment"
+  },
+  {
+    "narration": "MONTHLY STATIONERY OFFICE",
+    "category": "office_expense"
+  },
+  {
+    "narration": "ACT FIBERNET BROADBAND PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "UPI-CR/1116402431/SWIGGY",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "HDFC COMMISSION",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "SBI LIFE POLICY PREMIUM NEFT/363626",
+    "category": "insurance"
+  },
+  {
+    "narration": "HOME LOAN EMI HDFC BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "TERM LOAN EMI HDFC BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "194H TDS PAYMENT NEFT/654816",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "CA RAJESH CONSULTATION FEE",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "RAPIDO HOTEL BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "HDFC ERGO INSURANCE PREMIUM",
+    "category": "insurance"
+  },
+  {
+    "narration": "HDFC PENALTY CHARGES",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "MONTHLY GST DEPOSIT CHQ/916449",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "TAX DEDUCTED AT SOURCE 194A NEFT/813536",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "194I TDS PAYMENT NEFT/590785",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "KOTAK PROCESSING FEE",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "NEFT PAYMENT LAKSHMI IYER NEFT/814825",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "MONTHLY SECURITY OFFICE",
+    "category": "office_expense"
+  },
+  {
+    "narration": "SIEMENS SAL PROCESSING APR 2023",
+    "category": "salary"
+  },
+  {
+    "narration": "NEFT/NEFT/112038/AMIT PATEL",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "CHQ/738551 REDDY CORPORATION PURCHASE",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "FLIPKART SALARY AUG 2024 CREDIT",
+    "category": "salary"
+  },
+  {
+    "narration": "NEFT PAYMENT ANITA DESAI NEFT/855731",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "HDFC PENALTY CHARGES",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "NATIONAL ELECTRONIC TRANSFER MOHAN REDDY",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "OFFICE EQUIPMENT PAYMENT",
+    "category": "office_expense"
+  },
+  {
+    "narration": "BESCOM BILL PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "GOIBIBO BOOKING UPI/6649827836",
+    "category": "travel"
+  },
+  {
+    "narration": "HOME LOAN EMI LIC HOUSING",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "TDS LIABILITY PAYMENT CHQ/728038",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "GUJARAT GAS BROADBAND PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "GST TAX DEPOSIT CHQ/982554",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "UPI/7296096954/RAPIDO/KKBK",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "CGST SGST PAYMENT GOVT NEFT/590785",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "MAKEMYTRIP TRAVEL PAYMENT",
+    "category": "travel"
+  },
+  {
+    "narration": "CA RAJESH FEES PAYMENT",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "UPI PAYMENT AMAZON YBL",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "BANK INTEREST ICICI",
+    "category": "interest_income"
+  },
+  {
+    "narration": "AXIS INTEREST PAYOUT",
+    "category": "interest_income"
+  },
+  {
+    "narration": "SBI LIFE POLICY PREMIUM NEFT/363626",
+    "category": "insurance"
+  },
+  {
+    "narration": "NATIONAL ELECTRONIC TRANSFER ANITA DESAI",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "INSURANCE PAYMENT LIC",
+    "category": "insurance"
+  },
+  {
+    "narration": "JAIN PAPERS BILL SETTLEMENT NEFT/617488",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "LIFE INSURANCE BAJAJ ALLIANZ",
+    "category": "insurance"
+  },
+  {
+    "narration": "IRCTC TRIP PAYMENT",
+    "category": "travel"
+  },
+  {
+    "narration": "UPI DUNZO 6204041308 AXIS",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "UPI-9438411468-FLIPKART-HDFC",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "ICICI LATE PAYMENT FEE",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "PNB SAVINGS INTEREST",
+    "category": "interest_income"
+  },
+  {
+    "narration": "PROFESSIONAL FEES AUDITOR MEHTA",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "OFFICE CLEANING PAYMENT",
+    "category": "office_expense"
+  },
+  {
+    "narration": "YATRA CAB FARE UPI/2137651678",
+    "category": "travel"
+  },
+  {
+    "narration": "INFOSYS SALARY JUL 2025 CREDIT",
+    "category": "salary"
+  },
+  {
+    "narration": "INVESTMENT MUTUAL FUND NEFT/757924",
+    "category": "investment"
+  },
+  {
+    "narration": "SECURITY FOR OFFICE NEFT/813328",
+    "category": "office_expense"
+  },
+  {
+    "narration": "PAYROLL CREDIT EY SEP2024",
+    "category": "salary"
+  },
+  {
+    "narration": "TDS LIABILITY PAYMENT CHQ/769987",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "ACT FIBERNET MONTHLY BILL",
+    "category": "utility"
+  },
+  {
+    "narration": "MAKEMYTRIP TRIP PAYMENT",
+    "category": "travel"
+  },
+  {
+    "narration": "REDBUS HOTEL BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "SALARY REMITTANCE BAJAJ MAY 2024",
+    "category": "salary"
+  },
+  {
+    "narration": "PERSONAL LOAN REPAYMENT ICICI BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "AXIS PROCESSING FEE",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "SINGH CONSTRUCTION INVOICE PAYMENT NEFT/590785",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "GUPTA STEELS SUPPLY PAYMENT CHQ/492077",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "GST PAYMENT CGST SGST NEFT/663054",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "STATIONERY FOR OFFICE NEFT/260265",
+    "category": "office_expense"
+  },
+  {
+    "narration": "MEHTA PLASTICS INVOICE PAYMENT NEFT/887352",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "MAKEMYTRIP FLIGHT BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "RAPIDO RIDE FARE",
+    "category": "travel"
+  },
+  {
+    "narration": "WIPRO SAL PROCESSING SEP 2023",
+    "category": "salary"
+  },
+  {
+    "narration": "JIO UTILITY PAYMENT UPI/1667779376",
+    "category": "utility"
+  },
+  {
+    "narration": "VENDOR PAYMENT REDDY CORPORATION NEFT/214975",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "ICICI LOMBARD PREMIUM DEBIT",
+    "category": "insurance"
+  },
+  {
+    "narration": "IGST PAYMENT INTERSTATE NEFT/930555",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "ADVOCATE SHARMA CONSULTATION FEE",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "OFFICE MAINTENANCE BILL",
+    "category": "office_expense"
+  },
+  {
+    "narration": "GST OUTPUT TAX PAYMENT NEFT/500156",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "NEFT TRANSFER AMIT PATEL",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "INVESTMENT MUTUAL FUND NEFT/814825",
+    "category": "investment"
+  },
+  {
+    "narration": "CGST SGST PAYMENT GOVT NEFT/634277",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "NEFT PAYMENT REKHA AGARWAL NEFT/663054",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "DESAI LOGISTICS PROFORMA PAYMENT",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "GST CHALLAN PAYMENT NEFT/887352",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "TDS 194D DEPOSIT CHQ/916449",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "PWC SALARY AUG 2025 CREDIT",
+    "category": "salary"
+  },
+  {
+    "narration": "PAYROLL CREDIT FLIPKART FEB2024",
+    "category": "salary"
+  },
+  {
+    "narration": "ICICI BANK LOAN ACCOUNT DEBIT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "EMI DEDUCTION SBI",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "PNB HOUSING EMI DEBIT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "CGST SGST PAYMENT GOVT NEFT/724834",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "ELECTRICITY BILL HP GAS",
+    "category": "utility"
+  },
+  {
+    "narration": "SALARY REMITTANCE AXIS BANK DEC 2025",
+    "category": "salary"
+  },
+  {
+    "narration": "MONTHLY CLEANING OFFICE",
+    "category": "office_expense"
+  },
+  {
+    "narration": "CHQ/100599 SHARMA ELECTRICALS PURCHASE",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "CHQ/916449 ABC SUPPLIERS PURCHASE",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "INVESTMENT MUTUAL FUND NEFT/260265",
+    "category": "investment"
+  },
+  {
+    "narration": "UPI TRANSFER PAYTM 2825989011",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "TECH MAHINDRA SAL PROCESSING JUL 2023",
+    "category": "salary"
+  },
+  {
+    "narration": "TDS DEPOSIT GOVT CHQ/217301",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "SBI LATE PAYMENT FEE",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "MAX LIFE PREMIUM DEBIT",
+    "category": "insurance"
+  },
+  {
+    "narration": "AUDITOR MEHTA CONSULTATION FEE",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "GUJARAT GAS MONTHLY BILL",
+    "category": "utility"
+  },
+  {
+    "narration": "KOTAK PENALTY CHARGES",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "194H TDS PAYMENT NEFT/757924",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "HDFC INTEREST RECEIVED",
+    "category": "interest_income"
+  },
+  {
+    "narration": "MAKEMYTRIP FLIGHT BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "UPI/1780520225/PAYMENT/BIGBASKET",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "CONSULTANT GUPTA FEES PAYMENT",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "CLEANING OFFICE EXPENSE NEFT/590785",
+    "category": "office_expense"
+  },
+  {
+    "narration": "IGL BROADBAND PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "ICICI BANK SAL PROCESSING APR 2024",
+    "category": "salary"
+  },
+  {
+    "narration": "GST LIABILITY PAYMENT CHQ/182582",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "KOTAK SAVINGS INTEREST",
+    "category": "interest_income"
+  },
+  {
+    "narration": "HOME LOAN EMI SBI",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "NEFT-CR PRIYA SHARMA NEFT/503457",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "CHQ/632323 ABC SUPPLIERS PURCHASE",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "ZERODHA EQUITY PURCHASE",
+    "category": "investment"
+  },
+  {
+    "narration": "UPI PAYMENT NETMEDS IBL",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "PAYMENT TO SINGH CONSTRUCTION FOR GOODS",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "PAYTM MONEY INVESTMENT",
+    "category": "investment"
+  },
+  {
+    "narration": "OFFICE OPERATIONS EQUIPMENT",
+    "category": "office_expense"
+  },
+  {
+    "narration": "HOME LOAN EMI HDFC BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "UPI-4034047118-DUNZO-HDFC",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "NEFT-CR KAVITA JAIN NEFT/590785",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "ACT FIBERNET BILL PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "AUDITOR MEHTA SERVICE FEE NEFT/617488",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "TANGEDCO POSTPAID BILL",
+    "category": "utility"
+  },
+  {
+    "narration": "NSDL TDS CHALLAN NEFT/503457",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "UPI PAYMENT BOOKMYSHOW YBL",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "QUARTERLY TDS 194C NEFT/590785",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "ABC SUPPLIERS INVOICE PAYMENT NEFT/725380",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NATIONAL ELECTRONIC TRANSFER SUNITA GUPTA",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "GOVT GST CGST SGST NEFT/663054",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "SALARY INFOSYS UPI/9786748825",
+    "category": "salary"
+  },
+  {
+    "narration": "SBI INTEREST RECEIVED",
+    "category": "interest_income"
+  },
+  {
+    "narration": "NATIONAL ELECTRONIC TRANSFER ANITA DESAI",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "BANK INTEREST KOTAK",
+    "category": "interest_income"
+  },
+  {
+    "narration": "AMAZON SAL PROCESSING SEP 2023",
+    "category": "salary"
+  },
+  {
+    "narration": "NET SALARY HCL UPI/4466589567",
+    "category": "salary"
+  },
+  {
+    "narration": "VENDOR PAYMENT XYZ TRADERS NEFT/500156",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "JAIN PAPERS SUPPLY PAYMENT CHQ/480612",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "UPI-DR/6322520473/GOOGLEPAY/SBI",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "ELECTRICITY BILL ACT FIBERNET",
+    "category": "utility"
+  },
+  {
+    "narration": "NSDL TDS CHALLAN NEFT/329974",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "TANGEDCO MONTHLY BILL",
+    "category": "utility"
+  },
+  {
+    "narration": "AUDIT FEES CONSULTANT GUPTA",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "UPI PAYMENT PHONEPE YBL",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "MONTHLY FURNITURE OFFICE",
+    "category": "office_expense"
+  },
+  {
+    "narration": "ICICI BANK LOAN ACCOUNT DEBIT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "FLIPKART SALARY FEB 2024 CREDIT",
+    "category": "salary"
+  },
+  {
+    "narration": "VI BILL PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "GST PAYMENT CGST SGST NEFT/757924",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "PERSONAL LOAN REPAYMENT ICICI BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "AXIS INTEREST RECEIVED",
+    "category": "interest_income"
+  },
+  {
+    "narration": "TAX DEDUCTED AT SOURCE 194A NEFT/329974",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "NEFT/NEFT/260265/ANITA DESAI",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "PROFESSIONAL FEES AUDITOR MEHTA",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "SBI INTEREST PAYOUT",
+    "category": "interest_income"
+  },
+  {
+    "narration": "MUTUAL FUND SIP",
+    "category": "investment"
+  },
+  {
+    "narration": "SALARY CREDIT FROM AXIS BANK FOR APR 2023",
+    "category": "salary"
+  },
+  {
+    "narration": "AXIS COMMISSION",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "UPI PAYMENT BIGBASKET UTIB",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "GST PAYMENT CGST SGST NEFT/542666",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "OLA RIDE FARE",
+    "category": "travel"
+  },
+  {
+    "narration": "REDBUS TRIP PAYMENT",
+    "category": "travel"
+  },
+  {
+    "narration": "NEFT PAYMENT KAVITA JAIN NEFT/260265",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "YATRA TICKET BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "FD INTEREST YES BANK",
+    "category": "interest_income"
+  },
+  {
+    "narration": "CGST SGST PAYMENT GOVT NEFT/814825",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "NEFT SUNITA GUPTA NEFT/220116",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "FLIPKART SALARY FEB 2023 CREDIT",
+    "category": "salary"
+  },
+  {
+    "narration": "REDBUS HOTEL BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "MUTUAL FUND GROWW",
+    "category": "investment"
+  },
+  {
+    "narration": "MAX LIFE POLICY PREMIUM NEFT/500156",
+    "category": "insurance"
+  },
+  {
+    "narration": "GOIBIBO CAB FARE UPI/7665963761",
+    "category": "travel"
+  },
+  {
+    "narration": "UPI-7105574449-NETMEDS-KKBK",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "GST CHALLAN PAYMENT NEFT/930555",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "VENDOR PAYMENT PATEL HARDWARE NEFT/725380",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "YES BANK SAVINGS INTEREST",
+    "category": "interest_income"
+  },
+  {
+    "narration": "GST TAX DEPOSIT CHQ/899550",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "MPPKVVCL RECHARGE UPI/9703905715",
+    "category": "utility"
+  },
+  {
+    "narration": "MUTUAL FUND FD BOOKING",
+    "category": "investment"
+  },
+  {
+    "narration": "KOTAK LATE PAYMENT FEE",
+    "category": "bank_charges"
+  },
+  {
+    "narration": "NEFT/NEFT/260265/DEEPAK MEHTA",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "194C TDS PAYMENT NEFT/930555",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "NEFT SURESH NAIR NEFT/267753",
+    "category": "neft_rtgs"
+  },
+  {
+    "narration": "PROFESSIONAL FEES AUDITOR MEHTA",
+    "category": "professional_fees"
+  },
+  {
+    "narration": "INSURANCE PAYMENT LIC",
+    "category": "insurance"
+  },
+  {
+    "narration": "MAKEMYTRIP TICKET BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "SBI LIFE PREMIUM DEBIT",
+    "category": "insurance"
+  },
+  {
+    "narration": "INVESTMENT ZERODHA NEFT/220116",
+    "category": "investment"
+  },
+  {
+    "narration": "UPI PAYMENT MAKEMYTRIP UTIB",
+    "category": "upi_transfer"
+  },
+  {
+    "narration": "TDS LIABILITY PAYMENT CHQ/728038",
+    "category": "tds_payment"
+  },
+  {
+    "narration": "OFFICE SECURITY PAYMENT",
+    "category": "office_expense"
+  },
+  {
+    "narration": "INDANE BILL PAYMENT",
+    "category": "utility"
+  },
+  {
+    "narration": "HOME LOAN EMI AXIS BANK",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "PAYMENT TO KUMAR IT SOLUTIONS FOR GOODS",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "GST CHALLAN PAYMENT NEFT/855731",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "REDBUS TICKET BOOKING",
+    "category": "travel"
+  },
+  {
+    "narration": "INFOSYS SALARY NOV 2025 CREDIT",
+    "category": "salary"
+  },
+  {
+    "narration": "INTEREST CREDITED AXIS",
+    "category": "interest_income"
+  },
+  {
+    "narration": "ICICI BANK EMI DEBIT",
+    "category": "loan_repayment"
+  },
+  {
+    "narration": "KPMG SAL PROCESSING JAN 2024",
+    "category": "salary"
+  },
+  {
+    "narration": "DESAI LOGISTICS PROFORMA PAYMENT",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "GST CHALLAN PAYMENT NEFT/814825",
+    "category": "gst_payment"
+  },
+  {
+    "narration": "NEFT/SBIN12345/SHARMA ELEC/INV2026",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/HDFC0001234/ABC SUPPLIERS/BILL456",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/ICIC0005678/GUPTA STEELS/PO789",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "RTGS/AXIS0009012/PATEL HARDWARE/INV001",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/KKBK0003456/MEHTA PLASTICS/ORD234",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "IMPS/UTIB0007890/JAIN PAPERS/BILL567",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/YESB0001234/AGARWAL CHEM/INV890",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/PNB0005678/KUMAR IT SOL/PO123",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "RTGS/SBI0009012/SINGH CONST/BILL456",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/HDFC0003456/DESAI LOGISTICS/ORD789",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/ICIC0007890/RAO AGENCIES/INV012",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "IMPS/AXIS0001234/NAIR ENTERPRISES/BILL345",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/KKBK0005678/IYER AND SONS/PO678",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "NEFT/UTIB0009012/REDDY CORP/INV901",
+    "category": "vendor_payment"
+  },
+  {
+    "narration": "RTGS/YESB0003456/SHARMA ELECTRICALS/ORD234",
+    "category": "vendor_payment"
+  }
+]
