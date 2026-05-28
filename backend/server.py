@@ -1165,14 +1165,21 @@ async def tds_summary(client_id: Optional[str] = None, fy: str = "2025-26", curr
         "client_id": client_id,
         "financial_year": fy,
         "overall": {
-            "tds_computed": "N/A",
-            "tds_deducted": "N/A",
+            "tds_computed": 0,
+            "tds_deducted": 0,
             "tds_missed": total_shortfall,
             "penalty_estimate": sum(m.get("interest", 0) + m.get("late_fee_risk", 0) for m in result["missed"]),
             "missed_count": missed_count,
-            "compliance_rate": "N/A",
+            "compliance_rate": 0,
             "vendors_approaching": result["summary"]["vendors_approaching"]
         },
+        "quarterly": {
+            "Q1": {"entries": 0, "computed": 0, "deducted": 0, "missed": 0, "penalty": 0},
+            "Q2": {"entries": 0, "computed": 0, "deducted": 0, "missed": 0, "penalty": 0},
+            "Q3": {"entries": 0, "computed": 0, "deducted": 0, "missed": 0, "penalty": 0},
+            "Q4": {"entries": 0, "computed": 0, "deducted": 0, "missed": 0, "penalty": 0}
+        },
+        "by_section": {},
         "approaching": result["approaching"]
     }
 
