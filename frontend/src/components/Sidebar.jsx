@@ -2,8 +2,9 @@ import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import {
   LayoutDashboard, Users, FileUp, GitCompareArrows,
-  Calculator, CalendarClock, Settings, Compass, RotateCcw
+  Calculator, CalendarClock, Settings, Compass, LogOut
 } from "lucide-react";
+import { useAuth } from "@/components/AuthContext";
 
 const NAV = [
   { to: "/",                    label: "Dashboard",         icon: LayoutDashboard, testId: "nav-dashboard" },
@@ -16,10 +17,11 @@ const NAV = [
 ];
 
 export const Sidebar = ({ firm }) => {
+  const { logout } = useAuth();
 
   return (
     <aside className="w-64 bg-sidebar text-slate-100 flex-shrink-0 flex flex-col" data-testid="app-sidebar">
-      <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-800/50">
+      <Link to="/" className="h-16 flex items-center gap-3 px-5 border-b border-slate-800/50 hover:bg-slate-800/30 transition">
         <div className="h-9 w-9 rounded-md bg-gradient-to-br from-sky-400 to-navy-500 flex items-center justify-center shadow-sm">
           <Compass className="h-5 w-5 text-white" strokeWidth={2.5} />
         </div>
@@ -27,7 +29,7 @@ export const Sidebar = ({ firm }) => {
           <div className="font-heading font-bold text-white tracking-tight text-lg">TaxPilot</div>
           <div className="text-[10px] text-slate-400 uppercase tracking-widest">CA Compliance OS</div>
         </div>
-      </div>
+      </Link>
 
       <nav className="flex-1 px-3 py-5 space-y-1">
         {NAV.map((n) => (
@@ -44,15 +46,18 @@ export const Sidebar = ({ firm }) => {
         ))}
       </nav>
 
-      <div className="px-4 py-4 border-t border-slate-800/50">
+      <Link to="/settings" className="block hover:bg-slate-800/30 rounded-md transition px-4 py-4 border-t border-slate-800/50">
         {firm && (
-          <div className="mb-3">
+          <div>
             <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Firm</div>
             <div className="text-sm font-semibold text-white truncate">{firm.name}</div>
             <div className="text-xs text-slate-400 truncate">{firm.registration_number || "PENDING"}</div>
           </div>
         )}
-      </div>
+      </Link>
+      <button onClick={logout} className="flex items-center gap-3 w-full px-7 py-4 text-sm text-slate-400 hover:text-white hover:bg-red-600/20 transition" data-testid="sidebar-logout">
+        <LogOut className="h-4 w-4" /> Sign out
+      </button>
     </aside>
   );
 };

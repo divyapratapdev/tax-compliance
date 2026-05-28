@@ -143,13 +143,20 @@ export default function Login() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
-                  tabIndex="-1"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
             </div>
+
+            {isLogin && (
+              <div className="flex justify-end -mt-2 mb-2">
+                <button type="button" onClick={() => toast.info("Password reset is coming soon. Contact your admin for now.")} className="text-xs text-navy-600 hover:text-navy-800 font-medium hover:underline">
+                  Forgot password?
+                </button>
+              </div>
+            )}
 
             <div>
               <button

@@ -40,26 +40,39 @@ export default function Documents() {
     if (!uploadClient && clients.length) setUploadClient(clients[0].id);
   }, [clients, uploadClient]);
 
-  const handleFile = async (file) => {
-    if (!file) return;
-    if (!uploadClient) { toast.error("Pick a client first"); return; }
-    setUploading(true);
-    try {
-      await uploadDocument(uploadClient, docType, file);
-      toast.success("Document uploaded and queued for processing");
-      load();
-    } catch (e) {
-      toast.error(`Upload failed: ${e?.response?.data?.detail || e.message}`);
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
+  const handleFiles = async (files) => {
+    if (!files || files.length === 0) return;
+    if (!uploadClient) {
+      toast.error("Please select a client before uploading");
+      return;
     }
+    setUploading(true);
+    let successCount = 0;
+    let failCount = 0;
+    for (const file of Array.from(files)) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`${file.name} exceeds 10MB limit`);
+        failCount++;
+        continue;
+      }
+      try {
+        await uploadDocument(uploadClient, docType, file);
+        successCount++;
+      } catch (e) {
+        toast.error(`Failed to upload ${file.name}`);
+        failCount++;
+      }
+    }
+    if (successCount > 0) toast.success(`Successfully uploaded ${successCount} document${successCount > 1 ? "s" : ""}`);
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = "";
+    load();
   };
 
   const onDrop = (e) => {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    handleFile(file);
+    setDrag(false);
+    handleFiles(e.dataTransfer.files);
   };
 
   const totalPages = Math.ceil(docs.length / itemsPerPage);
@@ -106,32 +119,37 @@ export default function Documents() {
 
           <div
             onDrop={onDrop}
-            onDragOver={(e) => e.preventDefault()}
-            className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-navy-600 hover:bg-navy-50/30 transition cursor-pointer"
+            onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+            onDragLeave={() => setDrag(false)}
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition cursor-pointer ${drag ? "border-navy-600 bg-navy-50" : "border-slate-300"}`}
             onClick={() => fileRef.current?.click()}
             data-testid="upload-dropzone"
           >
             <Upload className="h-10 w-10 text-slate-400 mx-auto mb-3" />
             <div className="text-sm font-semibold text-slate-700">
-              {uploading ? "Uploading…" : "Drop file or click to browse"}
+              {uploading ? "Uploading…" : "Drop files or click to browse"}
             </div>
             <div className="text-xs text-slate-500 mt-1">PDF, Excel, CSV, JPG, PNG · max 10 MB</div>
             <input
               ref={fileRef}
               type="file"
+              multiple
               hidden
-              accept=".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
-              onChange={(e) => handleFile(e.target.files?.[0])}
+              accept=".pdf,.png,.jpg,.jpeg,.zip,.xlsx,.csv"
+              onChange={(e) => handleFiles(e.target.files)}
               data-testid="upload-file-input"
             />
           </div>
 
-          <div className="mt-4 flex items-start gap-2 text-xs text-slate-500 bg-amber-50 border border-amber-200 rounded-md p-3">
-            <AlertCircle className="h-4 w-4 text-amber-700 flex-shrink-0 mt-0.5" />
-            <span>
-              Demo mode: file is accepted and queued, but the OCR pipeline is the v9 Python engine — it will run when wired in production.
-            </span>
-          </div>
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-8 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-amber-800">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <div className="text-sm">
+                <strong>Demo Mode:</strong> The local OCR server (<code>local_ocr.py</code>) processes PDFs and images locally. 
+                No documents are sent to external APIs. In a production build, this would use AWS Textract or GCP Document AI.
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Processing queue */}

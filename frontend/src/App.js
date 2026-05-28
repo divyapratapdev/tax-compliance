@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
 import { Sidebar } from "@/components/Sidebar";
 import { Topbar } from "@/components/Topbar";
 import { ClientProvider } from "@/components/ClientContext";
@@ -42,6 +43,7 @@ const Shell = () => {
 function App() {
   return (
     <AuthProvider>
+      <Toaster richColors position="top-right" />
       <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />

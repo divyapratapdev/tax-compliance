@@ -12,9 +12,11 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       getProfile()
         .then((data) => setUser(data))
-        .catch(() => {
-          localStorage.removeItem("taxpilot_token");
-          setUser(null);
+        .catch((err) => {
+          if (err?.response?.status === 401) {
+            localStorage.removeItem("taxpilot_token");
+            setUser(null);
+          }
         })
         .finally(() => setLoading(false));
     } else {
@@ -38,7 +40,6 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("taxpilot_token");
     setUser(null);
-    window.location.href = "/login";
   };
 
   return (

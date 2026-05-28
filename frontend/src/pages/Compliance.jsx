@@ -1,11 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { CalendarCheck, MessageCircle, Mail } from "lucide-react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { CalendarClock, CalendarCheck, MessageCircle, Mail, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge, complianceTone } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { useClients } from "@/components/ClientContext";
 import { getComplianceCalendar, markFiled } from "@/lib/api";
-import { formatDate, formatRelativeDays, formatINR } from "@/lib/format";
+import { formatDate, formatRelativeDays } from "@/lib/format";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/Skeleton";
 
 const TYPE_LABEL = {
   GSTR1: "GSTR-1",
@@ -18,22 +20,22 @@ const TYPE_LABEL = {
 };
 
 export default function Compliance() {
-  const { clients, selected } = useClients();
+  const { selected } = useClients();
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+  const [filingId, setFilingId] = useState(null);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     const params = selected !== "all" ? { client_id: selected } : {};
     if (statusFilter) params.status = statusFilter;
     getComplianceCalendar(params.client_id, params.status)
       .then((d) => { setItems(d.items || []); setLoading(false); })
-      .catch(() => setLoading(false));
-  };
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(load, [selected, statusFilter]);
-  /* eslint-enable react-hooks/exhaustive-deps */
+      .catch(() => { toast.error("Failed to load compliance data"); setLoading(false); });
+  }, [selected, statusFilter]);
+
+  useEffect(load, [load]);
 
   const grouped = useMemo(() => {
     const buckets = { overdue: [], today: [], thisWeek: [], next30: [], later: [], filed: [] };
@@ -49,12 +51,24 @@ export default function Compliance() {
   }, [items]);
 
   const handleMarkFiled = async (id) => {
-    if (!window.confirm("Mark this item as filed?")) return;
-    await markFiled(id);
-    load();
+    setFilingId(id);
+    try {
+      await markFiled(id);
+      toast.success("Marked as filed");
+      load();
+    } catch (e) {
+      toast.error("Failed to mark as filed");
+    } finally {
+      setFilingId(null);
+    }
   };
 
-  if (loading) return <div className="text-sm text-slate-500" data-testid="compliance-loading">Loading calendar…</div>;
+  if (loading && items.length === 0) return (
+    <div className="animate-fade-in space-y-6" data-testid="compliance-loading">
+      <div className="space-y-2"><Skeleton className="h-8 w-56" /><Skeleton className="h-4 w-80" /></div>
+      {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 w-full rounded-xl" />)}
+    </div>
+  );
 
   const sections = [
     { key: "overdue", title: "Overdue", tone: "danger", items: grouped.overdue },
@@ -71,9 +85,9 @@ export default function Compliance() {
         title="Compliance Calendar"
         subtitle="Statutory deadlines with 7-day & 1-day automated reminders"
         actions={
-          <div className="flex gap-2" data-testid="compliance-status-filters">
+          <div className="flex flex-wrap gap-2" data-testid="compliance-status-filters">
             {[
-              { v: "", label: `All (${items.length})` },
+              { v: "", label: "All" },
               { v: "pending", label: "Pending" },
               { v: "missed", label: "Missed" },
               { v: "filed", label: "Filed" },
@@ -99,8 +113,9 @@ export default function Compliance() {
               <StatusBadge tone={s.tone}>{s.items.length}</StatusBadge>
             </div>
             <div className="surface overflow-hidden">
-              <table className="tp-table">
-                <thead>
+              <div className="overflow-x-auto">
+                <table className="tp-table">
+                  <thead>
                   <tr>
                     <th>Item</th>
                     <th>Client</th>
@@ -138,27 +153,29 @@ export default function Compliance() {
                       <td className="text-xs text-slate-500 font-mono">
                         {it.penalty_per_day ? `₹${it.penalty_per_day}/day` : "—"}
                       </td>
-                      <td>
+                      <td className="text-right">
                         {it.status !== "filed" && (
                           <button
                             onClick={() => handleMarkFiled(it.id)}
+                            disabled={filingId === it.id}
                             data-testid={`mark-filed-${it.id}`}
-                            className="flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-800 hover:underline"
+                            className="flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-800 hover:underline disabled:opacity-50"
                           >
-                            <CalendarCheck className="h-3.5 w-3.5" /> Mark filed
+                            {filingId === it.id ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Filing…</> : <><CalendarCheck className="h-3.5 w-3.5" /> Mark filed</>}
                           </button>
                         )}
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
         ))}
 
         {items.length === 0 && (
-          <EmptyState title="No compliance items" hint="Generate a calendar for a client to begin tracking." />
+          <EmptyState title="No compliance items" hint={statusFilter ? "No items match this filter." : "Generate a calendar for a client to begin tracking."} icon={CalendarClock} />
         )}
       </div>
     </div>

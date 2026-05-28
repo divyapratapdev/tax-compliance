@@ -4,17 +4,25 @@ import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { updateProfile, updateAlertPrefs } from "@/lib/api";
 import { useAuth } from "@/components/AuthContext";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function Settings() {
   const { user: firm, setUser: onUpdate } = useAuth();
   const [form, setForm] = useState(firm || {});
+  const [initialForm, setInitialForm] = useState(firm || {});
   const [prefs, setPrefs] = useState(firm?.alert_preferences || {});
+  const [initialPrefs, setInitialPrefs] = useState(firm?.alert_preferences || {});
   const [saving, setSaving] = useState(false);
-  const [savedMsg, setSavedMsg] = useState("");
 
   useEffect(() => {
-    if (firm) { setForm(firm); setPrefs(firm.alert_preferences || {}); }
+    if (firm) { 
+      setForm(firm); setInitialForm(firm); 
+      setPrefs(firm.alert_preferences || {}); setInitialPrefs(firm.alert_preferences || {}); 
+    }
   }, [firm]);
+
+  const isDirty = JSON.stringify(form) !== JSON.stringify(initialForm) || JSON.stringify(prefs) !== JSON.stringify(initialPrefs);
 
   const save = async () => {
     setSaving(true);
@@ -27,16 +35,21 @@ export default function Settings() {
       });
       const withPrefs = await updateAlertPrefs(prefs);
       onUpdate && onUpdate(withPrefs);
-      setSavedMsg("Saved");
-      setTimeout(() => setSavedMsg(""), 2500);
+      toast.success("Settings saved successfully");
     } catch (e) {
-      setSavedMsg("Save failed");
+      toast.error("Failed to save settings");
     } finally {
       setSaving(false);
     }
   };
 
-  if (!firm) return <div className="text-sm text-slate-500">Loading…</div>;
+  if (!firm) return (
+    <div className="animate-fade-in max-w-4xl space-y-6">
+      <div className="space-y-2"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-72" /></div>
+      <Skeleton className="h-64 w-full rounded-xl" />
+      <Skeleton className="h-48 w-full rounded-xl" />
+    </div>
+  );
 
   return (
     <div data-testid="settings-page" className="animate-fade-in max-w-4xl">
@@ -138,10 +151,9 @@ export default function Settings() {
         </section>
 
         <div className="flex items-center justify-end gap-3">
-          {savedMsg && <span className="text-sm text-green-700 font-medium" data-testid="settings-saved-msg">{savedMsg}</span>}
           <button
             onClick={save}
-            disabled={saving}
+            disabled={saving || !isDirty}
             data-testid="settings-save-btn"
             className="flex items-center gap-2 px-5 py-2 bg-navy-600 text-white rounded-md text-sm font-semibold hover:bg-navy-700 transition disabled:opacity-60"
           >

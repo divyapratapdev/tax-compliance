@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { AlertCircle, Download, Calculator, TrendingDown } from "lucide-react";
+import { AlertCircle, Download, Calculator, TrendingDown, Building2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { useClients } from "@/components/ClientContext";
 import { getTDSSummary, getTDSMissed, getTDSVendors } from "@/lib/api";
 import { formatINR, formatDate } from "@/lib/format";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function TDSAlerts() {
   const { clients, selected, setSelected } = useClients();
@@ -15,7 +17,7 @@ export default function TDSAlerts() {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const activeClient = selected !== "all" ? selected : null; // allow firm-wide
+  const activeClient = selected !== "all" ? selected : null;
   useEffect(() => {
     setLoading(true);
     Promise.all([
@@ -27,10 +29,19 @@ export default function TDSAlerts() {
       setMissed(m.entries || []);
       setVendors(v.vendors || []);
       setLoading(false);
-    }).catch(() => setLoading(false));
-  }, [activeClient, fy]);
+    }).catch(() => { toast.error("Failed to load TDS data"); setLoading(false); });
+  }, [selected, fy]);
 
-  if (loading || !summary) return <div className="text-sm text-slate-500" data-testid="tds-loading">Loading TDS data…</div>;
+  if (loading || !summary) return (
+    <div className="animate-fade-in space-y-6" data-testid="tds-loading">
+      <div className="space-y-2"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-72" /></div>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <Skeleton className="h-48 rounded-xl" />
+        <Skeleton className="xl:col-span-2 h-48 rounded-xl" />
+      </div>
+      <Skeleton className="h-64 w-full rounded-xl" />
+    </div>
+  );
 
   const ov = summary.overall;
   const has26q = ov.tds_deducted > 0;
@@ -54,20 +65,17 @@ export default function TDSAlerts() {
             <select
               value={fy}
               onChange={(e) => setFy(e.target.value)}
+              className="bg-white border border-slate-200 text-sm font-medium pl-3 pr-8 py-2 rounded-md hover:bg-slate-50 focus:ring-2 focus:ring-navy-600/30"
               data-testid="tds-fy-select"
-              className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white"
             >
-              {["2024-25","2025-26","2026-27"].map((y) => <option key={y} value={y}>FY {y}</option>)}
+              {(() => { const y = new Date().getFullYear(); return [`${y-1}-${String(y).slice(2)}`, `${y}-${String(y+1).slice(2)}`, `${y+1}-${String(y+2).slice(2)}`]; })().map((f) => (
+                <option key={f} value={f}>FY {f}</option>
+              ))}
             </select>
             <button
-              data-testid="tds-26q-download"
-              disabled={!has26q}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition ${
-                has26q
-                  ? "bg-navy-600 text-white hover:bg-navy-700"
-                  : "bg-slate-100 text-slate-400 cursor-not-allowed"
-              }`}
-              onClick={() => alert("In production this triggers the v9 Form 26Q XML generator (form_26q_generator.py).")}
+              data-testid="tds-generate-btn"
+              className="flex items-center gap-2 px-4 py-2 bg-navy-600 text-white rounded-md text-sm font-semibold hover:bg-navy-700 transition"
+              onClick={() => toast.info("Form 26Q XML generation coming soon")}
             >
               <Download className="h-4 w-4" /> Generate 26Q XML
             </button>
@@ -75,7 +83,6 @@ export default function TDSAlerts() {
         }
       />
 
-      {/* Hero alert + 3 stats */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
         <div className="xl:col-span-1 bg-red-50 border border-red-200 rounded-lg p-6" data-testid="tds-hero-missed">
           <div className="flex items-start gap-3 mb-4">
@@ -111,9 +118,11 @@ export default function TDSAlerts() {
             <div className="kpi-value text-green-700">{formatINR(ov.tds_deducted)}</div>
             <p className="mt-2 text-xs text-slate-500">Compliance rate · {ov.compliance_rate}%</p>
           </div>
-          <div className="surface p-6 col-span-2" data-testid="tds-quarter-breakdown">
-            <div className="kpi-label mb-4">Quarter-wise Breakdown</div>
-            <div className="grid grid-cols-4 gap-4">
+          <div className="surface xl:col-span-2 flex flex-col">
+            <div className="p-5 border-b border-slate-100 flex-shrink-0">
+              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Quarterly Deductions</h3>
+            </div>
+            <div className="p-5 flex-1 grid grid-cols-2 lg:grid-cols-4 gap-4">
               {["Q1","Q2","Q3","Q4"].map((q) => (
                 <div key={q} data-testid={`tds-q-${q}`}>
                   <div className="text-xs text-slate-500">{q}</div>
@@ -126,7 +135,6 @@ export default function TDSAlerts() {
         </div>
       </div>
 
-      {/* Missed deductions table */}
       <div className="surface overflow-hidden mb-8" data-testid="tds-missed-card">
         <div className="px-6 py-4 border-b border-slate-200">
           <h2 className="text-lg font-heading font-semibold text-slate-900">Missed Deductions</h2>
@@ -135,8 +143,9 @@ export default function TDSAlerts() {
         {missed.length === 0 ? (
           <EmptyState title="No missed deductions" hint="All applicable TDS has been deducted for this period." />
         ) : (
-          <table className="tp-table">
-            <thead>
+          <div className="overflow-x-auto">
+            <table className="tp-table">
+              <thead>
               <tr>
                 <th>Vendor</th>
                 <th>Section</th>
@@ -169,11 +178,10 @@ export default function TDSAlerts() {
         )}
       </div>
 
-      {/* Vendor cumulative */}
       <div className="surface overflow-hidden" data-testid="tds-vendors-card">
-        <div className="px-6 py-4 border-b border-slate-200">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-navy-600" />
           <h2 className="text-lg font-heading font-semibold text-slate-900">Vendor Cumulative Tracking</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Annual aggregates per vendor × section · FY {fy}</p>
         </div>
         {vendors.length === 0 ? (
           <EmptyState title="No vendor data" />

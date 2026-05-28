@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ShieldAlert, AlertCircle, CalendarClock, Users, ArrowRight, Receipt } from "lucide-react";
+import { toast } from "sonner";
+import { CalendarClock, FileUp, ShieldAlert, GitCompareArrows, ArrowUpRight, CheckCircle2, AlertCircle, RotateCcw, Users, ArrowRight, Receipt } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { KPICard } from "@/components/KPICard";
 import { StatusBadge, complianceTone } from "@/components/StatusBadge";
@@ -13,10 +14,18 @@ import { Skeleton } from "@/components/Skeleton";
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshedAt, setRefreshedAt] = useState(null);
+
+  const loadDashboard = useCallback(() => {
+    setLoading(true);
+    getDashboardSummary()
+      .then((d) => { setData(d); setRefreshedAt(new Date()); setLoading(false); })
+      .catch((err) => { toast.error("Failed to load dashboard"); setLoading(false); });
+  }, []);
 
   useEffect(() => {
-    getDashboardSummary().then((d) => { setData(d); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
+    loadDashboard();
+  }, [loadDashboard]);
 
   if (loading) {
     return (
@@ -41,11 +50,15 @@ export default function Dashboard() {
   const ch = data.client_health;
 
   return (
-    <div data-testid="dashboard-page" className="animate-fade-in">
-      <PageHeader
-        title="Executive Dashboard"
-        subtitle="Cross-client compliance snapshot. Last refreshed just now."
-        testId="dashboard-header"
+    <div data-testid="dashboard-page" className="animate-fade-in space-y-8">
+      <PageHeader 
+        title="Good Morning, Adarsh" 
+        subtitle={refreshedAt ? `Last refreshed ${refreshedAt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}` : "Loading..."}
+        actions={
+          <button onClick={loadDashboard} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-navy-600 border border-slate-200 rounded-md hover:bg-slate-50 transition" data-testid="dashboard-refresh">
+            <RotateCcw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
+          </button>
+        }
       />
 
       {/* KPI strip */}

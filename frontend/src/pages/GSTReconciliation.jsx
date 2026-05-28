@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { ShieldCheck, ShieldAlert, ShieldQuestion, GitCompareArrows } from "lucide-react";
+import { ShieldCheck, ShieldAlert, ShieldQuestion, CheckCircle2, AlertCircle, FileText, ArrowRight, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge, mismatchTone } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { useClients } from "@/components/ClientContext";
-import { getGSTSummary, listMismatches, resolveMismatch } from "@/lib/api";
+import { getGSTSummary, getGstMismatches, resolveMismatch } from "@/lib/api";
 import { formatINR, formatDate } from "@/lib/format";
 import { toast } from "sonner";
+import { KPICard } from "@/components/KPICard";
+import { Skeleton } from "@/components/Skeleton";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 export default function GSTReconciliation() {
   const { clients, selected, setSelected } = useClients();
-  const [month, setMonth] = useState(4);
-  const [year, setYear] = useState(2025);
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [mismatches, setMismatches] = useState([]);
   const [typeFilter, setTypeFilter] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [resolvingId, setResolvingId] = useState(null);
 
   const activeClient = selected !== "all" ? selected : clients[0]?.id;
 
@@ -26,25 +29,29 @@ export default function GSTReconciliation() {
     setLoading(true);
     Promise.all([
       getGSTSummary(activeClient, month, year),
-      listMismatches({ client_id: activeClient, is_resolved: false }),
+      getGstMismatches({ client_id: activeClient, month, year, is_resolved: false }),
     ]).then(([s, m]) => {
       setSummary(s);
       setMismatches(m.mismatches || []);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(() => {
+      toast.error("Failed to load reconciliation data");
+      setLoading(false);
+    });
   }, [activeClient, month, year]);
 
   const filtered = typeFilter ? mismatches.filter((m) => m.type === typeFilter) : mismatches;
 
   const handleResolve = async (id) => {
-    const notes = window.prompt("Resolution notes (optional):", "Followed up with supplier");
-    if (notes === null) return;
+    setResolvingId(id);
     try {
-      await resolveMismatch(id, notes);
+      await resolveMismatch(id, "Resolved by CA");
       toast.success("Mismatch resolved");
       setMismatches((prev) => prev.filter((m) => m.id !== id));
     } catch (e) {
       toast.error("Failed to resolve mismatch");
+    } finally {
+      setResolvingId(null);
     }
   };
 
@@ -78,20 +85,26 @@ export default function GSTReconciliation() {
             <select
               value={year}
               onChange={(e) => setYear(parseInt(e.target.value))}
-              className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white"
+              className="bg-white border border-slate-200 text-sm font-medium pl-3 pr-8 py-2 rounded-md hover:bg-slate-50 focus:ring-2 focus:ring-navy-600/30"
               data-testid="gst-year-select"
             >
-              {[2023, 2024, 2025, 2026].map((y) => <option key={y} value={y}>{y}</option>)}
+              {Array.from({length: 5}, (_, i) => new Date().getFullYear() - 2 + i).map((y) => (
+                <option key={y} value={y}>FY {y}-{String(y + 1).slice(2)}</option>
+              ))}
             </select>
           </div>
         }
       />
 
       {loading || !summary ? (
-        <div className="text-sm text-slate-500" data-testid="gst-loading">Loading reconciliation…</div>
+        <div className="space-y-6" data-testid="gst-loading">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1,2,3].map(i => <Skeleton key={i} className="h-32 w-full rounded-xl" />)}
+          </div>
+          <Skeleton className="h-64 w-full rounded-xl" />
+        </div>
       ) : (
         <>
-          {/* ITC summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" data-testid="itc-cards">
             <div className="surface-success p-6" data-testid="itc-safe-card">
               <div className="flex items-center justify-between mb-3">
@@ -119,7 +132,6 @@ export default function GSTReconciliation() {
             </div>
           </div>
 
-          {/* Type filter tabs */}
           <div className="flex flex-wrap gap-2 mb-4" data-testid="mismatch-type-filters">
             {[
               { v: "", label: `All (${mismatches.length})` },
@@ -141,51 +153,57 @@ export default function GSTReconciliation() {
             ))}
           </div>
 
-          {/* Mismatch table */}
           <div className="surface overflow-hidden" data-testid="mismatch-table-card">
             {filtered.length === 0 ? (
-              <EmptyState title="No open mismatches" hint="All invoices reconcile cleanly for this period." icon={GitCompareArrows} />
+              <EmptyState
+                icon={CheckCircle2}
+                title="All Good"
+                hint={typeFilter ? "No mismatches match this filter. Try selecting 'All'." : "All invoices reconcile cleanly for this period."}
+              />
             ) : (
-              <table className="tp-table">
-                <thead>
-                  <tr>
-                    <th>Supplier</th>
-                    <th>Invoice</th>
-                    <th>Type</th>
-                    <th className="text-right">Books</th>
-                    <th className="text-right">GSTR-2A</th>
-                    <th className="text-right">Difference</th>
-                    <th>Suggested action</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((m) => (
-                    <tr key={m.id} data-testid={`mm-row-${m.id}`}>
-                      <td>
-                        <div className="font-semibold text-slate-900">{m.supplier_name}</div>
-                        <div className="font-mono text-xs text-slate-500">{m.supplier_gstin}</div>
-                      </td>
-                      <td>
-                        <div className="font-mono text-sm text-slate-800">{m.invoice_number}</div>
-                        <div className="text-xs text-slate-500">{formatDate(m.invoice_date)}</div>
-                      </td>
-                      <td><StatusBadge tone={mismatchTone(m.type)}>{m.type.replace(/_/g," ")}</StatusBadge></td>
-                      <td className="num">{m.books_amount != null ? formatINR(m.books_amount) : "—"}</td>
-                      <td className="num">{m.gstr2a_amount != null ? formatINR(m.gstr2a_amount) : "—"}</td>
-                      <td className="num">{m.difference != null ? formatINR(Math.abs(m.difference)) : "—"}</td>
-                      <td className="text-xs text-slate-600 max-w-xs">{m.suggested_action}</td>
-                      <td>
-                        <button
-                          onClick={() => handleResolve(m.id)}
-                          data-testid={`mm-resolve-${m.id}`}
-                          className="text-xs font-semibold text-navy-600 hover:text-navy-800 hover:underline"
-                        >Resolve</button>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="tp-table">
+                  <thead>
+                    <tr>
+                      <th>Supplier</th>
+                      <th>Invoice</th>
+                      <th>Type</th>
+                      <th className="text-right">Books</th>
+                      <th className="text-right">GSTR-2A</th>
+                      <th className="text-right">Difference</th>
+                      <th>Suggested action</th>
+                      <th></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filtered.map((m) => (
+                      <tr key={m.id} data-testid={`mm-row-${m.id}`}>
+                        <td>
+                          <div className="font-semibold text-slate-900">{m.supplier_name}</div>
+                          <div className="font-mono text-xs text-slate-500">{m.supplier_gstin}</div>
+                        </td>
+                        <td>
+                          <div className="font-mono text-sm text-slate-800">{m.invoice_number}</div>
+                          <div className="text-xs text-slate-500">{formatDate(m.invoice_date)}</div>
+                        </td>
+                        <td><StatusBadge tone={mismatchTone(m.type)}>{m.type.replace(/_/g," ")}</StatusBadge></td>
+                        <td className="num">{m.books_amount != null ? formatINR(m.books_amount) : "—"}</td>
+                        <td className="num">{m.gstr2a_amount != null ? formatINR(m.gstr2a_amount) : "—"}</td>
+                        <td className="num">{m.difference != null ? formatINR(Math.abs(m.difference)) : "—"}</td>
+                        <td className="text-xs text-slate-600 max-w-xs">{m.suggested_action}</td>
+                        <td className="text-right">
+                          <button
+                            onClick={() => handleResolve(m.id)}
+                            disabled={resolvingId === m.id}
+                            data-testid={`mm-resolve-${m.id}`}
+                            className="flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-800 hover:underline disabled:opacity-50"
+                          >{resolvingId === m.id ? <><Loader2 className="h-3 w-3 animate-spin" /> Resolving…</> : "Resolve"}</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </>
