@@ -14,8 +14,8 @@ import secrets
 SECRET_KEY = os.getenv("JWT_SECRET")
 if not SECRET_KEY:
     # Render environment fallback so the app doesn't crash if env var is missing
-    # Generate a strong random key to prevent token forgery
-    SECRET_KEY = secrets.token_hex(32)
+    # Using a hardcoded fallback ensures tokens aren't invalidated on every server restart
+    SECRET_KEY = "f8b2d49e71a3c65df90b82f1c4e7d9a8b3c2e1f0a9d8c7b6e5f4a3b2c1d0e9f8"
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
