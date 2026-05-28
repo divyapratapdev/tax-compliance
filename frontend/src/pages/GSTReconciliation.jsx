@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge, mismatchTone } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { useClients } from "@/components/ClientContext";
-import { getGSTSummary, getGstMismatches, resolveMismatch } from "@/lib/api";
+import { getGSTSummary, listMismatches, resolveMismatch } from "@/lib/api";
 import { formatINR, formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import { KPICard } from "@/components/KPICard";
@@ -29,7 +29,7 @@ export default function GSTReconciliation() {
     setLoading(true);
     Promise.all([
       getGSTSummary(activeClient, month, year),
-      getGstMismatches({ client_id: activeClient, month, year, is_resolved: false }),
+      listMismatches({ client_id: activeClient, is_resolved: false }),
     ]).then(([s, m]) => {
       setSummary(s);
       setMismatches(m.mismatches || []);
